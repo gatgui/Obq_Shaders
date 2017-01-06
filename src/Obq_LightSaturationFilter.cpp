@@ -4,7 +4,7 @@ Obq_LightSaturationFilter :
 Send receive test.
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2015 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2015 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -39,7 +39,13 @@ AI_SHADER_NODE_EXPORT_METHODS(ObqLightSaturationFilterMethod);
 enum Obq_LightSaturationFilter_Params {p_mode, p_key, p_triggerValue, p_saturation, p_defaultSaturation};
 
 enum Obq_LightSaturationFilter_Mode {SIMPLE, TRIGGER, ASVALUE};
-
+static const char* Obq_LightSaturationFilter_ModeNames[] = 
+{
+	"Simple saturation modifier",
+    "Use trigger message",
+    "Use message as saturation",
+    NULL
+};
 // shader data struct
 //
 typedef struct 
@@ -56,7 +62,7 @@ ShaderData;
 // Arnold node parameters
 node_parameters
 {
-	AiParameterINT("mode", SIMPLE);
+	AiParameterENUM("mode", SIMPLE,Obq_LightSaturationFilter_ModeNames);
 	AiParameterSTR("key", "O1");
 	AiParameterFLT("triggerValue", 1.0f);
 	AiParameterFLT("saturation", 0.0f);

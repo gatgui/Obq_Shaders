@@ -49,11 +49,14 @@
 <tr><td width="2"></td><td><a href="help_files/Obq_Fresnel2Standards.html">Obq_Fresnel2Standards</a></td></tr>
 <tr><td width="2"></td><td><a href="help_files/Obq_Hair.html">Obq_Hair</a></td></tr>
 <tr><td width="2"></td><td><a href="help_files/Obq_IESLightFilter.html">Obq_IESLightFilter</a></td></tr>
+<tr><td width="2"></td><td><a href="help_files/Obq_KettleUVStereoLens.html">Obq_KettleUVStereoLens</a></td></tr>
 <tr><td width="2"></td><td><a href="help_files/Obq_LensDistortion.html">Obq_LensDistortion</a></td></tr>
+<tr><td width="2"></td><td><a href="help_files/Obq_LightSaturationFilter.html">Obq_LightSaturationFilter</a></td></tr>
 <tr><td width="2"></td><td><a href="help_files/Obq_MeasuredMaterial.html">Obq_MeasuredMaterial</a></td></tr>
-<tr><td width="2"></td><td><a href="help_files/Obq_MessageGetFlt.html">Obq_MessageGetFlt</a></td></tr>
-<tr><td width="2"></td><td><a href="help_files/Obq_MessageSetFlt.html">Obq_MessageSetFlt</a></td></tr>
-<tr><td width="2"></td><td><a href="help_files/Obq_MessageStoreFlt.html">Obq_MessageStoreFlt</a></td></tr>
+<tr><td width="2"></td><td><a href="help_files/Obq_MessageGet.html">Obq_MessageGet</a></td></tr>
+<tr><td width="2"></td><td><a href="help_files/Obq_MessageSet.html">Obq_MessageSet</a></td></tr>
+<tr><td width="2"></td><td><a href="help_files/Obq_MessageStore.html">Obq_MessageStore</a></td></tr>
+<tr><td width="2"></td><td><a href="help_files/Obq_NodeInfo.html">Obq_NodeInfo</a></td></tr>
 <tr><td width="2"></td><td><a href="help_files/Obq_Opacity.html">Obq_Opacity</a></td></tr>
 <tr><td width="2"></td><td><a href="help_files/Obq_RandomColor.html">Obq_RandomColor</a></td></tr>
 <tr><td width="2"></td><td><a href="help_files/Obq_RandomID.html">Obq_RandomID</a></td></tr>
@@ -78,7 +81,30 @@
 </div>
 <div id="content-help"><br>
 <h3>News</h3>
-<p>[2015-01-27]</p>
+<br><p>[2016-11-25]</p>
+<p>Fix Illuminant D60 XYZ values.</p>
+<p>New build for Arnold 4.2.16.0 - win, linux, osx - SITOA 3.16 &amp; MTOA 1.4.1</p>
+<p>Online GitHub Wiki pages added</p>
+<br><p>[2016-03-27]</p>
+<p>Obq_StereoLens and Obq_KettleUVStereoLens "View Mode" parameters do not conflict with Maya parameter anymore.</p>
+<p>3DE distortion models do not conflict anymore. (LDPK 1.8.1)</p>
+<br><p>[2015-11-07]</p>
+<p>Versions have changed from Softimage vXXX to Arnold aW.X.Y.Z.</p>
+<p>INT parameters representing drop down menu have been changed to ENUM, this will break previous versions.</p>
+<p>All Maya templates are there, but scripted logic is missing.</p>
+<br><p>[2015-07-08]</p>
+<p>Node reference is up-to-date.</p>
+<br><p>[2015-06-03]</p>
+<p>Added : Obq_KettleUVStereoLens, from an object to another, UV to UV, in stereo, it's the fusion of KettleBake and Obq_StereoLens. Also multi-uv baking capability.</p>
+<p>Added : Obq_Message suite for message passing.</p>
+<p>Added : Obq_GenerateMakefile.py to generate linux/macosx Makefile.</p>
+<p>Maya templates : A huge thanks to Andrew Hazelden again for his help.</p>
+<p>Fix : AOV blended opacity.</p>
+<p>Fix : Obq_Toon/ToonSimple writes alpha in AOV even if scale*color == black.</p>
+<p>Fix : Obq_RandomColor/ID now works in Maya.</p>
+<p>Fix : Obq_Atmosphere restored.</p>
+<p>Documentation for the new nodes should follow quickly.</p>
+<br><p>[2015-01-27]</p>
 <p>Obq_StereoLens and Obq_LensDistortion now support adaptive subdivision.</p>
 <p>OSX build now available.</p>
 <br><p>[2014-11-17]</p>
@@ -114,7 +140,7 @@
 <br>
 </div>
 </div>
-<div id="footer">Copyright &copy; 2011-2014, ObliqueFX. All Rights Reserved. </div>
+<div id="footer">Copyright &copy; 2011-2015, ObliqueFX. All Rights Reserved. </div>
 </div>
 </body>
 </html>

@@ -4,23 +4,23 @@
 
         + copy the content of the "metadata" folder into "C:\solidangle\mtoadeploy\<Maya Version>\shaders",[Windows]
         + copy the content of the "metadata" folder into "/opt/solidangle/mtoa/<Maya Version>/shaders/",[Linux]
-        + copy the content of the "metadata" folder into "~/solidangle/mtoa/<Maya Version>/shaders/",[OSX]
+        + copy the content of the "metadata" folder into "/Applications/solidangle/mtoa/<Maya Version>/shaders/",[OSX]
 
         + copy the content of the "ae" folder into "C:\solidangle\mtoadeploy\<Maya Version>\scripts\mtoa\ui\ae",[Windows]
         + copy the content of the "ae" folder into "/opt/solidangle/mtoa/<Maya Version>/scripts/mtoa/ui/ae",[Linux]
-        + copy the content of the "ae" folder into "~/solidangle/mtoa/<Maya Version>/scripts/mtoa/ui/ae",[OSX]
+        + copy the content of the "ae" folder into "/Applications/solidangle/mtoa/<Maya Version>/scripts/mtoa/ui/ae",[OSX]
 
         + copy the content of the "icons" folder into "C:\solidangle\mtoadeploy\<Maya Version>\icons",[Windows]
         + copy the content of the "icons" folder into "/opt/solidangle/mtoa/<Maya Version/icons",[Linux]
-        + copy the content of the "icons" folder into "~/solidangle/mtoa/<Maya Version/icons",[OSX]
+        + copy the content of the "icons" folder into "/Applications/solidangle/mtoa/<Maya Version/icons",[OSX]
 
 		+ copy the content of the "attrPresets" folder into "C:\Users\<User Account>\Documents\maya\<Maya Version>\presets\attrPresets",[Windows]
 		+ copy the content of the "attrPresets" folder into "/home/<User Account>/maya/<Maya Version>/presets/attrPresets",[Linux]
 		+ copy the content of the "attrPresets" folder into "~/Library/Preferences/Autodesk/maya/<Maya Version>/presets/attrPresets",[OSX]
 
-        + copy the .dll   in "bin" into "/opt/solidangle/mtoa/<Maya Version>/shaders",[Windows]
+        + copy the .dll   in "bin" into "C:\solidangle\mtoadeploy\<Maya Version>\shaders",[Windows]
         + copy the .so    in "bin" into "/opt/solidangle/mtoa/<Maya Version>/shaders",[Linux]
-        + copy the .dylib in "bin" into " ~/solidangle/mtoa/<Maya Version>/shaders",[OSX]
+        + copy the .dylib in "bin" into "/Applications/solidangle/mtoa/<Maya Version>/shaders",[OSX]
 
 
 Windows requirements:  
@@ -45,6 +45,9 @@ The easiest way to check if MtoA has loaded the Oblique shaders is by opening up
 If MtoA has a problem loading the OBQ shaders you can check the Maya Script Editor window, and the Output window for more details.
 
 ## Version History ##
+
+### 2015-05-18 Changes ###
+- **[ACH]** Added a metadata file and an ae template for the new **Obq_KettleUVStereoLens** lens shader that is under development for panoramic stereo rendering with the camera rays derived from an input mesh.
 
 ### 2015-04-22 Changes ###
 - **[ACH]** Updated the metadata file and the ae template for the Obq_StereoLens, and Obq_AngularCamera shaders in MtoA.

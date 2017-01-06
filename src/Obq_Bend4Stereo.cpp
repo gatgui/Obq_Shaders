@@ -4,7 +4,7 @@ Obq_Bend4Stereo:
 	Fake incoming ray direction to give same specular for stereo
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -37,7 +37,14 @@ AI_SHADER_NODE_EXPORT_METHODS(ObqBend4StereoMethods);
 enum ObqBend4StereoParams { p_shaderIn, p_bendMode, p_leftCamera, p_centerCamera, p_rightCamera };
 
 enum ObqBendModes {BEND_NONE, BEND_LEFT, BEND_RIGHT, BEND_CENTER};
-
+static const char* ObqBendModesNames[] = 
+{
+	"Don't bend",
+    "Bend from left",
+    "Bend from right",
+    "Bend from center",
+    NULL
+};
 // Shader Data Structure
 //
 typedef struct 
@@ -57,7 +64,7 @@ ShaderData;
 node_parameters
 {
 	AiParameterRGBA("shaderIn", 1.0f,1.0f,1.0f,1.0f);					// shaderIn
-	AiParameterINT("bendMode" , 0);
+	AiParameterENUM("bendMode" , BEND_NONE, ObqBendModesNames);
 	AiParameterSTR("leftCamera" , "StereoCamera_Left");
 	AiParameterSTR("centerCamera" , "StereoCamera");
 	AiParameterSTR("rightCamera" , "StereoCamera_Right");
@@ -74,19 +81,19 @@ node_update
 	ShaderData *data = (ShaderData*)AiNodeGetLocalData(node);
 	
 	data->bendMode = params[p_bendMode].INT;
-	
+	ObqPluginID plugin = findPluginID(node);
 	// Get .SItoA. index
 	std::string camNodeName(AiNodeGetName(node));
 
-	size_t sitoaIndex = camNodeName.rfind(".SItoA.");
-	size_t lastPindex = camNodeName.rfind(".");
-	if(lastPindex > sitoaIndex+6)
+	size_t sitoaIndex = (plugin==SITOA?camNodeName.rfind(".SItoA."):camNodeName.length());
+	size_t lastPindex = (plugin==SITOA?camNodeName.rfind("."):camNodeName.length());
+	if(plugin==SITOA && lastPindex > sitoaIndex+6)
 		lastPindex-=sitoaIndex;
 
 	// Get all 3 cameras and all 3 matrices
 	AtMatrix centerCameraMatrix,leftCameraMatrix,rightCameraMatrix;
 	AtNode* leftCamera = NULL, *centerCamera=NULL, *rightCamera = NULL;
-	std::string nameEnding(camNodeName.substr(sitoaIndex,lastPindex).c_str());
+	std::string nameEnding(plugin==SITOA?camNodeName.substr(sitoaIndex,lastPindex).c_str():"");
 	
 	leftCamera = AiNodeLookUpByName((std::string(params[p_leftCamera].STR).append(nameEnding).c_str()));
 	AiNodeGetMatrix(leftCamera,"matrix",leftCameraMatrix);
@@ -138,7 +145,8 @@ node_update
 node_finish
 {
 	ShaderData *data = (ShaderData*)AiNodeGetLocalData(node);
-	AiFree(data);
+	if(data!=NULL)
+		AiFree(data);
 }
 
 shader_evaluate

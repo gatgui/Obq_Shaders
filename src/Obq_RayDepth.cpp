@@ -4,7 +4,7 @@ Obq_RayDepth :
 Outputs the ray depth of the particular ray type
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -34,7 +34,15 @@ Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.p
 AI_SHADER_NODE_EXPORT_METHODS(ObqRayDepthMethods);
 
 enum OBQTYPE {ALL, REFL, REFR, DIFF, GLOSS};
-
+static const char* OBQTYPENames[] = 
+{
+	"All",
+    "Reflection",
+    "Refraction",
+    "Diffuse",
+    "Glossy",
+    NULL
+};
 typedef struct 
 {
 	int type;
@@ -50,7 +58,7 @@ enum ObqRayDepthParams
 
 node_parameters
 {
-	AiParameterINT("type",0);
+	AiParameterENUM("type",ALL,OBQTYPENames);
 }
 
 node_initialize

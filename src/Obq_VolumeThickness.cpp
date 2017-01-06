@@ -4,7 +4,7 @@ Obq_VolumeThickness:
 
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -29,6 +29,37 @@ Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.p
 */
 #include "Obq_VolumeThickness.h"
 
+// ENUM MENU
+static const char* ObqVTThicknessModeNames[] = 
+{
+	"Sphere Particles",
+    "Custom Thickness",
+    NULL
+};
+static const char* OvtAutoNames[] = 
+{
+	"Always",
+	"Shadow-Only",
+    NULL
+};
+static const char* OvtDiffuseNames[] = 
+{
+	"None",
+	"Direct",
+	"Direct*opacity",
+	"Direct*sqrt(opacity)",
+	"Full",
+	"Full (Emission only)",
+    NULL
+};
+static const char* ovtAlphaNames[] = 
+{
+	"Alpha Parameter",
+    "Diffuse Alpha",
+    "Emission Alpha",
+    "Max of Diffuse and Emission Alpha",
+    NULL
+};
  
 // parameters
 //
@@ -36,17 +67,17 @@ node_parameters
 {
 	AiParameterRGBA("colorIn", 0.0f, 0.0f, 0.0f, 0.0f);// shader
 	AiParameterRGBA("emissionColor", 0.0f, 0.0f, 0.0f, 0.0f);// shader
-	AiParameterINT("alphaMode", 0);
+	AiParameterENUM("alphaMode", 0,ovtAlphaNames);
 	AiParameterFLT("alpha", 0);
-	AiParameterINT("thicknessMode", 0);
+	AiParameterENUM("thicknessMode", 0, ObqVTThicknessModeNames);
 	AiParameterFLT("thickness", 0.0f);					// thickness
 	AiParameterFLT("accumulatedThicknessThreshold",1.0);
 	AiParameterFLT("radius",1.0);
 	AiParameterFLT("exponent",1.0);
 	AiParameterBOOL("useAbsorption",false);
 	AiParameterFLT("absorption",0.0);
-	AiParameterINT("diffuseMode",3);
-	AiParameterINT("autoTransparencyMode",0);
+	AiParameterENUM("diffuseMode",3,OvtDiffuseNames);
+	AiParameterENUM("autoTransparencyMode",0,OvtAutoNames);
 	AiParameterFLT("shadowModifier",1);
 	AiParameterFLT("lightPropagationDistance",0.1f);
 	AiParameterBOOL("doubleHemisphericalDiffuse",true);

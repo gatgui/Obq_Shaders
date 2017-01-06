@@ -4,7 +4,7 @@ Obq_Root2Tip :
 	LERP between root and tip
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -46,19 +46,25 @@ typedef struct
 }
 ShaderData;
 
-enum {OBQ_LIN, OBQ_HERM};
+enum ObqInterpolationMode{OBQ_LIN, OBQ_HERM};
+static const char* ObqInterpolationModeNames[] = 
+{
+	"Linear",
+    "Hermite",
+    NULL
+};
 
 node_parameters
 {
 	AiParameterRGB("root",0.0f,0.0f,0.0f);
 	AiParameterRGB("tip",1.0f,1.0f,1.0f);
-    AiParameterINT("mode",0);
+    AiParameterENUM("mode",OBQ_LIN,ObqInterpolationModeNames);
 }
 
 node_initialize
 {
 	ShaderData *data = (ShaderData*) AiMalloc(sizeof(ShaderData));
-	data->mode = 0;
+	data->mode = OBQ_LIN;
 	AiNodeSetLocalData(node,data);
 }
 

@@ -4,7 +4,7 @@ Obq_Opacity :
 	a simple but optimized opacity cut-out.
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -40,8 +40,18 @@ enum ObqOpacityParams { p_color, p_channel, p_opacityRGBA, p_opacityScalar, p_ha
 
 // enum for channel
 //
-enum {OPRED, OPGREEN, OPBLUE, OPALPHA, OPRGB, OPSCALAR,INPUTALPHA};
-
+enum ObqChannel {OPRED, OPGREEN, OPBLUE, OPALPHA, OPRGB, OPSCALAR, INPUTALPHA};
+static const char* ObqChannelNames[] = 
+{
+	"Opacity : Red",
+    "Opacity : Green",
+    "Opacity : Blue",
+    "Opacity : Alpha",
+    "Opacity : RGB",
+	"Opacity : Scalar",
+	"  Color : Alpha",
+    NULL
+};
 // shader data struct
 //
 typedef struct 
@@ -54,7 +64,7 @@ ShaderData;
 node_parameters
 {
 	AiParameterRGBA("color",1.0f,1.0f,1.0f,1.0f);
-	AiParameterINT("channel", INPUTALPHA);		
+	AiParameterEnum("channel", INPUTALPHA, ObqChannelNames);
     AiParameterRGBA("opacityRGBA",1.0f,1.0f,1.0f,1.0f);
     AiParameterFLT("opacityScalar", 1.0f);
 	AiParameterBOOL("hard",false);
@@ -74,6 +84,7 @@ node_update
 	// Access shader Data
 	ShaderData *data = (ShaderData*)AiNodeGetLocalData(node);
 
+	// get shader values
 	data->channel = params[p_channel].INT;
 }
 

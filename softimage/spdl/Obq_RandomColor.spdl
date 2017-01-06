@@ -1,4 +1,4 @@
-# SPDL - Obq_RandomColor - Created by Marc-Antoine Desjardins - ObliqueFX - madesjardins@obliquefx.com : Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+# SPDL - Obq_RandomColor - Created by Marc-Antoine Desjardins - ObliqueFX - marcantoinedesjardins@gmail.com : Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 SPDL
 Version = "2.0.0.0";
 Reference = "{229A1AF6-2238-4428-83E5-1259BC711222}";
@@ -337,16 +337,6 @@ PropertySet "Obq_RandomColor_params"
       readable = on;
       inspectable = on;
    }
-   Parameter "XtoA" input
-   {
-      guid = "{B81445E2-A7B9-4C2C-AD00-2E43B913676E}";
-      type = integer;
-      texturable = off;
-      animatable = on;
-      value = 0;
-      value minimum = 0;
-      value maximum = 2;
-   }
 }
 
 phenomenon "Obq_RandomColor_declare"
@@ -490,25 +480,12 @@ Defaults
       Name = "Shape";
       Commands = "{F5C75F11-2F05-11d3-AA95-00AA0068D2C0}";
    }
-   XtoA
-   {
-      Name = "Software";
-      Commands = "{F5C75F11-2F05-11d3-AA95-00AA0068D2C0}";
-	  UIType = "Combo";
-	  Items
-	  {
-		"SItoA" = 0,
-		"MtoA" = 1,
-		"HtoA" = 2
-	  }
-   }
 }
 
 Layout "Default"
 {
 	Group "Options"
 	{
-		XtoA;
 		randMax;
 		seed;
 	}

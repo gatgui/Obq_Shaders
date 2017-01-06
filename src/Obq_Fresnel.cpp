@@ -4,7 +4,7 @@ Obq_Fresnel :
 	a dielectric and a complex fresnel term node. It uses pbrt spectrum class.
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -32,59 +32,111 @@ Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.p
 
 using namespace std;
 
+// ENUM MENU
+static const char* ObqFresnelMethodNames[] = 
+{
+	"Refractive",
+    "Metal",
+    NULL
+};
+
+static const char* ObqFresnelXYZ2RGBNames[] = 
+{
+	"sRGB Illuminant E",
+    "sRGB Illuminant D65 <- E (Bradford)",
+	"sRGB Illuminant D65",
+    NULL
+};
+
+static const char* ObqFresnelGammaNames[] = 
+{
+	"Linear",
+    "sRGB",
+    NULL
+};
+static const char* ObqFresnelUnitsNames[] = 
+{
+	"Nano (nm) [360-830]",
+    "Micro (um) [0.360-0.830]",
+    NULL
+};
+static const char* ObqFresnelModeNames[] = 
+{
+	"Custom",
+    "Custom (Please load new preset, DEPRICATED Presets mode)",
+	"File",
+    NULL
+};
+static const char* ObqFresnelInputModeNames[] = 
+{
+	"RGB (LEGACY)",
+    "String SPD",
+    NULL
+};
+static const char* ObqFresnelBackfaceModeNames[] = 
+{
+	"Same as Frontface",
+    "Swap IORs (Media In -> n2)",
+	"Always White",
+	"Always Black",
+    NULL
+};
+static const char* ObqFresnelCCModeNames[] = 
+{
+	"Off",
+    "HSV",
+	"HLS",
+    NULL
+};
+static const char* ObqFresnelCCOpNames[] = 
+{
+	"Add",
+    "Multiply",
+	"Exponent",
+    NULL
+};
+
 node_parameters
 {
-	AiParameterINT("mode", MODE_CUSTOM);						// Fresnel Mode, custom legacy, presets, files
-	AiParameterSTR("iorFilename","");						// eta filename
-	AiParameterINT("lambdaUnits", 0);						// 0 = nano, 1 = micro (*1000)
-	AiParameterRGB("iorRGB",0.100899f,0.401072f,1.569860f);	// refractive indices Default is Gold
-	AiParameterRGB("kRGB",3.404634f,2.516492f,1.776652f);	// extinction coeffs
-	AiParameterINT("method", 1);								// Method to compute IOR
-	AiParameterRGB("iorInRGB",1.0f,1.0f,1.0f);				// Media in which the object is
-	AiParameterFLT("ratioFsFp", 0.5f);						// Ratio Fs Fp
-	AiParameterBOOL("transmittance", false);					// T = 1 - R
-	AiParameterINT("backfaceMode",1);						// backface mode
-	AiParameterBOOL("useLUT",true);							// use LUT for metals
-	AiParameterFLT("LUTSampleSize", 0.5f);					// size of a sample, default 0.5°
-	AiParameterBOOL("useFullSpectrum", true);				// use full spectrum in equation
-	AiParameterBOOL("degamma",false);						// old and bad linear workflow degamma
-	AiParameterINT("outputGamma",0);							// gamma operation None
+	AiParameterENUM("mode", MODE_CUSTOM, ObqFresnelModeNames);					// Fresnel Mode, custom legacy, presets, files
+	AiParameterSTR("iorFilename","");											// eta filename
+	AiParameterENUM("lambdaUnits", UNITS_NANO, ObqFresnelUnitsNames);			// 0 = nano, 1 = micro (*1000)
+	AiParameterRGB("iorRGB",0.100899f,0.401072f,1.569860f);						// refractive indices Default is Gold
+	AiParameterRGB("kRGB",3.404634f,2.516492f,1.776652f);						// extinction coeffs
+	AiParameterENUM("method", METALS,ObqFresnelMethodNames );					// Method to compute IOR
+	AiParameterRGB("iorInRGB",1.0f,1.0f,1.0f);									// Media in which the object is
+	AiParameterFLT("ratioFsFp", 0.5f);											// Ratio Fs Fp
+	AiParameterBOOL("transmittance", false);									// T = 1 - R
+	AiParameterENUM("backfaceMode",BACKFACE_SWAP,ObqFresnelBackfaceModeNames );	// backface mode
+	AiParameterBOOL("useLUT",true);												// use LUT for metals
+	AiParameterFLT("LUTSampleSize", 0.5f);										// size of a sample, default 0.5°
+	AiParameterBOOL("useFullSpectrum", true);									// use full spectrum in equation
+	AiParameterBOOL("degamma",false);											// old and bad linear workflow degamma
+	AiParameterENUM("outputGamma",OUTPUT_LINEAR, ObqFresnelGammaNames);			// gamma operation None
 	AiParameterSTR("lambdasStr","364.699982 375.700012 387.5 400.0 413.300018 427.5 442.799988 459.199982 476.900024 495.899994 516.600037 539.099976 563.599976 652.599976 688.799988 729.300049 774.900024 826.600037");	// SPDs strings space separated for gold
 	AiParameterSTR("etasStr","1.716 1.696 1.674 1.658 1.636 1.616 1.562 1.426 1.242 0.916 0.608 0.402 0.306 0.166 0.16 0.164 0.174 0.188");																					// ""
 	AiParameterSTR("ksStr","1.862 1.906 1.936 1.956 1.958 1.94 1.904 1.846 1.796 1.84 2.12 2.54 2.88 3.15 3.8 4.35 4.86 5.39");																								// ""
-	AiParameterINT("inputType",INPUT_RGB);					// RGB Legacy or string SPD
-	AiParameterINT("ccMode",CC_OFF);						// Color correction mode
-	AiParameterFLT("hueShift", 0.0f);						// hue shift
-	AiParameterFLT("saturationMod", 1.0f);					// saturation modifier
-	AiParameterINT("saturationOp",CC_MUL);					// saturation operator
-	AiParameterFLT("roughness", 0.0f);						// roughness parameter for GTR2 (GGX) filtering
-	AiParameterFLT("roughnessSampleSize", 0.05f);			// LUT roughness sample size
-	AiParameterINT("xyz2rgb",SRGB_ILLUM_D65_BRADFORD_E);	// XYZ to RGB Matrix
+	AiParameterENUM("inputType",INPUT_RGB,ObqFresnelInputModeNames);					// RGB Legacy or string SPD
+	AiParameterENUM("ccMode",CC_OFF,ObqFresnelCCModeNames);						// Color correction mode
+	AiParameterFLT("hueShift", 0.0f);											// hue shift
+	AiParameterFLT("saturationMod", 1.0f);										// saturation modifier
+	AiParameterENUM("saturationOp",CC_MUL, ObqFresnelCCOpNames);				// saturation operator
+	AiParameterFLT("roughness", 0.0f);											// roughness parameter for GTR2 (GGX) filtering
+	AiParameterFLT("roughnessSampleSize", 0.05f);								// LUT roughness sample size
+	AiParameterENUM("xyz2rgb",SRGB_ILLUM_D65_BRADFORD_E,ObqFresnelXYZ2RGBNames);// XYZ to RGB Matrix
 
 }
 
 node_initialize
 {
 	ShaderData *data = (ShaderData*) AiMalloc(sizeof(ShaderData));
-	
-	data->eta[0] = 1.0;	data->eta[1] = 1.0;	data->eta[2] = 1.0;
-	data->k[0] = 0.0;	data->k[1] = 0.0;	data->k[2] = 0.0;
-	Spectrum r;
 
 	data->LUT = NULL;
 	data->lambdas = NULL ;
 	data->etas = NULL;
 	data->ks = NULL;
 	AiNodeSetLocalData(node,data);
-}
 
-
-node_update
-{
-
-	// Access shader Data
-	ShaderData *data = (ShaderData*)AiNodeGetLocalData(node);
-	
 	data->eta[0] = 1.0;	data->eta[1] = 1.0;	data->eta[2] = 1.0;
 	data->k[0] = 0.0;	data->k[1] = 0.0;	data->k[2] = 0.0;
 
@@ -98,7 +150,7 @@ node_update
 	data->method = params[p_method].INT;
 
 	data->useFullSpectrum = params[p_useFullSpectrum].BOOL;
-	if(data->useFullSpectrum && (!(params[p_mode].INT == MODE_FILES || params[p_inputType].INT == INPUT_STRING) || data->method == REFRACTIVE))
+	if(data->useFullSpectrum && (!(params[p_mode].INT == MODE_FILE || params[p_inputType].INT == INPUT_STRING) || data->method == REFRACTIVE))
 	{
 		data->useFullSpectrum = false;
 		//AiMsgWarning("Can only use full spectrum with file mode for metals, reverting to approximation.");
@@ -123,7 +175,7 @@ node_update
 		data->ks = NULL;
 	}
 
-	if(mode == MODE_FILES || inputType == INPUT_STRING)
+	if(mode == MODE_FILE || inputType == INPUT_STRING)
 	{
 		float unitConversion = ((params[p_lambdaUnits].INT==UNITS_NANO)?1.0f:1000.0f);
 
@@ -131,7 +183,7 @@ node_update
 		std::vector<float> etas;
 		std::vector<float> ks;
 		
-		if(mode == MODE_FILES)
+		if(mode == MODE_FILE)
 		{
 			short ft = fileType(params[p_iorFilename].STR);
 			switch(ft)
@@ -249,7 +301,7 @@ node_update
 			std::string info_etas("");
 			std::string info_ks("");
 			char buf[256];
-			bool filemode = (mode == MODE_FILES);
+			bool filemode = (mode == MODE_FILE);
 			for(int i = 0; i < data->lambdasSize; i++)
 			{
 				data->lambdas[i] = lambdas[i];
@@ -624,6 +676,15 @@ node_update
 	}
 }
 
+
+node_update
+{
+
+	// Access shader Data
+	//ShaderData *data = (ShaderData*)AiNodeGetLocalData(node);
+
+}
+
 node_finish
 {
 	// Desallocate shader data
@@ -789,7 +850,7 @@ shader_evaluate
 			iorRGB = AiShaderEvalParamRGB(p_iorInRGB);
 			kRGB = AI_RGB_BLACK;
 
-			if(AiShaderEvalParamInt(p_mode)==MODE_FILES)
+			if(AiShaderEvalParamInt(p_mode)==MODE_FILE)
 			{
 				iorInRGB.r = data->eta[0]; iorInRGB.g = data->eta[1]; iorInRGB.b = data->eta[2];
 			}
@@ -802,7 +863,7 @@ shader_evaluate
 		else // Normal
 		{
 
-			if(AiShaderEvalParamInt(p_mode)==MODE_FILES)
+			if(AiShaderEvalParamInt(p_mode)==MODE_FILE)
 			{
 				iorRGB.r = data->eta[0]; iorRGB.g = data->eta[1]; iorRGB.b = data->eta[2];
 				kRGB.r = data->k[0];	 kRGB.g = data->k[1];	  kRGB.b = data->k[2];

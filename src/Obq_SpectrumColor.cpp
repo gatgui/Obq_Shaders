@@ -4,7 +4,7 @@ Obq_SpectrumColor :
 	It uses pbrt spectrum class to output a color based on SPDs.
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -34,16 +34,46 @@ AI_SHADER_NODE_EXPORT_METHODS(ObqSpectrumColorMethods);
 
 enum ObqSpectrumColorParams { p_mode, p_filename, p_lambdaUnits, p_lambdasStr, p_intensitiesStr, p_xyz2rgb, p_gamma};
 
+// ENUM MENUS
+static const char* ObqSpectrumModeNames[] = 
+{
+	"File",
+    "String",
+    NULL
+};
+
+static const char* ObqSpectrumXYZ2RGBFullNames[] = 
+{
+	"sRGB Illuminant E",
+    "sRGB Illuminant D65 <- E (Bradford)",
+	"sRGB Illuminant D65",
+	"XYZ",
+    NULL
+};
+
+static const char* ObqSpectrumGammaNames[] = 
+{
+	"Linear",
+    "sRGB",
+    NULL
+};
+
+static const char* ObqSpectrumUnitsNames[] = 
+{
+	"Nano (nm) [360-830]",
+    "Micro (um) [0.360-0.830]",
+    NULL
+};
 
 node_parameters
 {
-   AiParameterINT("mode", 1);						// Files or String
-   AiParameterSTR("filename","");					// filename
-   AiParameterINT("lambdaUnits", 0);				// 0 = nano, 1 = micro (*1000)
-   AiParameterSTR("lambdasStr","460.0 530.0 650.0");	// SPDs strings space separated
-   AiParameterSTR("intensitiesStr","0.0 1.0 0.0");	// ""
-   AiParameterINT("xyz2rgb", SRGB_ILLUM_D65);		// primaries and illuminant
-   AiParameterINT("gamma", OUTPUT_LINEAR);			// gamma
+   AiParameterENUM("mode", MODE_STRING, ObqSpectrumModeNames);				// Files or String
+   AiParameterSTR("filename","");											// filename
+   AiParameterENUM("lambdaUnits", UNITS_NANO,ObqSpectrumUnitsNames);		// 0 = nano, 1 = micro (*1000)
+   AiParameterSTR("lambdasStr","460.0 530.0 650.0");						// SPDs strings space separated
+   AiParameterSTR("intensitiesStr","0.0 1.0 0.0");							// ""
+   AiParameterENUM("xyz2rgb", SRGB_ILLUM_D65, ObqSpectrumXYZ2RGBFullNames);	// primaries and illuminant
+   AiParameterENUM("gamma", OUTPUT_LINEAR,ObqSpectrumGammaNames);			// gamma
 }
 
 node_initialize
@@ -73,7 +103,7 @@ node_update
 	std::vector<float> lambdas;
 	std::vector<float> intensities;
 	
-	if(mode == MODE_FILES)
+	if(mode == MODE_FILE)
 	{
 		short ft = fileType(params[p_filename].STR);
 		bool ret = false;

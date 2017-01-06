@@ -1,4 +1,4 @@
-# SPDL Obq_MessageSetFlt - Created by Marc-Antoine Desjardins - ObliqueFX - madesjardins@obliquefx.com : Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+# SPDL Obq_MessageSetFlt - Created by Marc-Antoine Desjardins - ObliqueFX - marcantoinedesjardins@gmail.com : Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 SPDL
 Version = "2.0.0.0";
 Reference = "{1182A861-5C75-42F5-ADBD-911C3336DED3}";
@@ -21,7 +21,7 @@ PropertySet "Obq_MessageSetFlt"
 	{
 		GUID = "{1EEEEBCD-6E72-4354-B24A-F926A5CC2D72}";
 		Type = string;
-		Value = "O1";
+		Value = "Of";
 		Texturable = Off;
 		Animatable = On;
 	}
@@ -148,7 +148,7 @@ Logic
 	End Sub
 
 	Sub OnInit
-		PPG.PPGLayout.SetAttribute "HelpFile","http://s3aws.obliquefx.com/public/shaders/help_files/Obq_MessageSetFlt.html"
+		PPG.PPGLayout.SetAttribute "HelpFile","http://s3aws.obliquefx.com/public/shaders/help_files/Obq_MessageSet.html"
 		updateVisibility()
 	End Sub
 }

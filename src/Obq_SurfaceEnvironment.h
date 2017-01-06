@@ -4,7 +4,7 @@ Obq_SurfaceEnvironment.h :
 	Based on sib_environment and sphericalLightFilter by nozon.
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -41,7 +41,9 @@ AI_SHADER_NODE_EXPORT_METHODS(ObqSurfaceEnvironmentMethods);
 //
 enum ObqSurfaceEnvironmentParams { p_tex, p_considerAlpha, p_mapMode, p_usePassEnvShader, p_rayTypeEnv, p_useIntensityEnv, p_useTransformsEnv, p_useRoughnessEnv, p_sampleLevel, p_coneAngle, p_cosLobeGloss, p_useSampleCount, p_sampleCount,p_sampleCountMultiplier, p_onSurfaceMode, p_ior, p_customDirection, p_intensity, p_globalRotation , p_rotation, p_passthrough, p_passthroughShader, p_renderChannel, p_flipU, p_flipV };
 
-
+// This is the enumeration for the rayTypeEnv
+//
+enum ObqSERayTypeEnv {RAY_CAMERA, RAY_DIFFUSE, RAY_REFLECTED, RAY_GLOSSY, RAY_REFRACTED};
 // This is the enumeration for the mapping mode
 //
 enum ObqMapMode { MIRROREDBALL,ANGULARMAP,LATLONG,CUBICMAP };
@@ -49,7 +51,6 @@ enum ObqMapMode { MIRROREDBALL,ANGULARMAP,LATLONG,CUBICMAP };
 // This is the enumeration for the possible directions in surface mode
 //
 enum ObqOnSurfaceMode { D_VIEW, D_VIEW_INV, D_NOR, D_NOR_SMOOTH, D_NOR_INV, D_NOR_INV_SMOOTH, D_NOR_FF, D_NOR_FF_INV, D_RFL, D_RFL_SMOOTH, D_RFR, D_RFR_SMOOTH, D_CUSTOM };
-
 
 // Shader Data Structure
 //

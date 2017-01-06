@@ -1,3 +1,31 @@
+[2016-11-25]
+Fix Illuminant D60 XYZ values.
+New build for Arnold 4.2.16.0 - win, linux, osx - SITOA 3.16 &amp; MTOA 1.4.1
+Online GitHub Wiki pages added
+
+[2016-03-27]
+Obq_StereoLens and Obq_KettleUVStereoLens "View Mode" parameters do not conflict with Maya parameter anymore.
+3DE distortion models do not conflict anymore. (LDPK 1.8.1)
+
+[2015-11-07]
+Versions have chaned from Softimage vXXX to Arnold aW.X.Y.Z.
+INT parameters representing drop down menu have been changed to ENUM, this will break previous versions.
+All Maya templates are there, but scripted logic is missing.
+
+[2015-07-08]
+Node reference is up-to-date.
+
+[2015-06-03]
+Added : Obq_KettleUVStereoLens, from an object to another, UV to UV, in stereo, it's the fusion of KettleBake and Obq_StereoLens. Also multi-uv baking capability.
+Added : Obq_Message suite for message passing.
+Added : Obq_GenerateMakefile.py to generate linux/macosx Makefile.
+Maya templates : A huge thanks to Andrew Hazelden again for his help.
+Fix : AOV blended opacity.
+Fix : Obq_Toon/ToonSimple writes alpha in AOV even if scale*color == black.
+Fix : Obq_RandomColor/ID now works in Maya.
+Fix : Obq_Atmosphere restored.
+Documentation for the new nodes should follow quickly.
+
 [2015-01-27]
 Obq_StereoLens and Obq_LensDistortion now support adaptive subdivision.
 OSX build now available.

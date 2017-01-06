@@ -9,21 +9,44 @@ HOW TO INSTALL
 
 	+ copy the content of "softimage\compounds" into "Addons\SItoA\Data\RTcompounds",
 
-	+ copy the .dll   in "bin\vXXX" into "Addons\SItoA\Application\Plugins\bin\nt-x86-64",[Windows]
-	+ copy the .so    in "bin\vXXX" into "Addons/SItoA/Application/Plugins/bin/linux64", 	[Linux]
-	+ copy the .dylib in "bin\vXXX" into "Addons/SItoA/Application/Plugins/bin/??",	[OSX]
+	+ copy the .dll   in "bin" into "Addons\SItoA\Application\Plugins\bin\nt-x86-64",[Windows]
+	+ copy the .so    in "bin" into "Addons/SItoA/Application/Plugins/bin/linux64", 	[Linux]
+	+ copy the .dylib in "bin" into "Addons/SItoA/Application/Plugins/bin/??",	[OSX]
 
-  MtoA (not yet fully integrated):
-	+ copy the content of the "maya\metadata" folder into "solidangle\mtoadeploy\<Maya Version>\shaders",
+  MtoA (not yet fully integrated, missing templates):
+	+ copy the content of the "maya\metadata" folder into "C:\solidangle\mtoadeploy\<Maya Version>\shaders",[Windows]
+	+ . . . . . . . . . . . . . . . . . . . . . . . . . . "/opt/solidangle/mtoa/<Maya Version>/shaders",[Linux]
+	+ . . . . . . . . . . . . . . . . . . . . . . . . . . "/Applications/solidangle/mtoa/<Maya Version>/shaders",[OSX]
 
-	+ copy the content of the "maya\ae" folder into "solidangle\mtoadeploy\<Maya Version>\scripts\mtoa\ui\ae",
+	+ copy the content of the "maya\ae" folder into "C:\solidangle\mtoadeploy\<Maya Version>\scripts\mtoa\ui\ae",[Windows]
+	+ . . . . . . . . . . . . . . . . . . . . . . . "/opt/solidangle/mtoa/<Maya Version>/scripts/mtoa/ui/ae",[Linux]
+	+ . . . . . . . . . . . . . . . . . . . . . . . "/Applications/solidangle/mtoa/<Maya Version>/scripts/mtoa/ui/ae",[OSX]
 
-	+ copy the content of the "maya\icons" folder into "solidangle\mtoadeploy\<Maya Version>\icons",
+	+ copy the content of the "maya\icons" folder into "C:\solidangle\mtoadeploy\<Maya Version>\icons",[Windows]
+	+ . . . . . . . . . . . . . . . . . . . . . . . .  "/opt/solidangle/mtoa/<Maya Version/icons",[Linux]
+	+ . . . . . . . . . . . . . . . . . . . . . . . .  "/Applications/solidangle/mtoa/<Maya Version/icons",[OSX]
+
+	+ copy the content of the "maya\attrPresets" folder into "C:\Users\<User Account>\Documents\maya\<Maya Version>\presets\attrPresets",[Windows]
+	+ . . . . . . . . . . . . . . . . . . . . . . . . . . .  "/home/<User Account>/maya/<Maya Version>/presets/attrPresets",[Linux]
+	+ . . . . . . . . . . . . . . . . . . . . . . . . . . .  "~/Library/Preferences/Autodesk/maya/<Maya Version>/presets/attrPresets",[OSX]
 
 	+ copy the .dll   in "bin" into "C:\solidangle\mtoa\<Maya Version>\shaders",[Windows]
 	+ copy the .so    in "bin" into "/opt/solidangle/mtoa/<Maya Version>/shaders",[Linux]
-	+ copy the .dylib in "bin" into " ~/solidangle/mtoa/<Maya Version>/shaders",[OSX]
+	+ copy the .dylib in "bin" into "/Applications/solidangle/mtoa/<Maya Version>/shaders",[OSX]
   
+  MAXtoA Beta (not yet fully integrated)
+  + copy the .dll   in "bin" into "C:\Program Files\Autodesk\3ds Max <MAX Version>\Plugins",[Windows]
+  + copy the content of the "3dsmax\metadata" folder into "C:\Program Files\Autodesk\3ds Max <MAX Version>\Plugins\en-US",[Windows]
+  
+  C4DtoA (not yet fully integrated)
+	+ copy the content of the "cinema4d\metadata" folder into "C:\Program Files\MAXON\CINEMA 4D <Version>\plugins\C4DtoA\shaders",[Windows]
+	+ . . . . . . . . . . . . . . . . . . . . . . . . . . "/Application/MAXON/CINEMA 4D <Version>/plugins/C4DtoA/shaders",[OSX]
+    
+	+ copy the content of the "cinema4d\res" folder into "C:\Program Files\MAXON\CINEMA 4D <Version>\plugins\C4DtoA\res",[Windows]
+	+ . . . . . . . . . . . . . . . . . . . . . . . . . . "/Application/MAXON/CINEMA 4D <Version>/plugins/C4DtoA/res",[OSX]
+    
+	+ copy the .dll   in "bin" into "C:\Program Files\MAXON\CINEMA 4D <Version>\plugins\C4DtoA\shaders",[Windows]
+	+ copy the .dylib in "bin" into "/Application/MAXON/CINEMA 4D <Version>/plugins/C4DtoA/shaders",[OSX]
   
   Obq_Simbiont:
   
@@ -58,17 +81,19 @@ HOW TO COMPILE
 	Windows SDK [windows]
 	Arnold SDK  [all OS]
 	GLM 0.9.4.3 (or above)  [all OS]
-	GCC 4.1.2 (recommended) [Linux, Mac OSX]
+	GCC 4.8.2 (recommended) [Linux, Mac OSX]
 
 
   On Windows, simply open the VC++ solution (Obq_Shaders.sln) in the folder "win_VC++" and build a Release x64 version of all projects.
   You will have to modify the Arnold path in "Additional Include Directories" and "Additional Library Directories" in all projects.
 
   When compiling for linux and macosx, please use the Makefiles from within the folders.
-  Simply change the OBQVERSION, GLMPATH and ARNOLD path before running make.
-
-  [New]
+  Simply change the OBQVERSION, GLMPATH and ARNOLD path before running make or use the Obq_GenerateMakefile.py script to generate a new version:
   
+	python Obq_GenerateMakefile 4.2.11.0 ARNOLD_PARENT_PATH GLM_PATH
+	
+	ARNOLD_PARENT_PATH is the folder that contains all the different folders of versions of Arnold.
+	
   - GLM is now included as a submodule.
     Just run:
       
@@ -97,24 +122,38 @@ HOW TO COMPILE
     - You can build a debug version by adding 'debug=1' to the command.
     - You can control the warning level by adding 'warnings=none|std|all' to the command. (Default is 'all')
     - You can make warnings as errors by adding 'warnings-as-errors=1' to the command.
-    - You can select the visual c++ compiler version by adding 'mscver=10.0' to the command. (Default is '9.0')
+    - You can select the visual c++ compiler version by adding 'mscver=10.0' to the command. (Default is '10.0')
       As far as I remember:
          Visual Studio 2005 -> 8.0
          Visual Studio 2008 -> 9.0
          Visual Studio 2010 -> 10.0
          Visual Studio 2012 -> 11.0
+         Visual Studio 2013 -> 12.0
+         Visual Studio 2015 -> 14.0
 
-SItoA ARNOLD VERSION
+SItoA & MtoA = ARNOLD VERSION
 ====================
-3.04 = 4.2.3.1
-3.03 = 4.2.2.0
-3.02 = 4.2.1.2
-3.01 = 4.2.0.6
-3.00 = 4.1.3.5
-2.10 = 4.0.16.4
+3.16  &  1.4.1 = 4.2.16.0
+3.15  &  1.4.0 = 4.2.15.1
+3.14  &  1.3.1 = 4.2.14.2
+3.13 & 1.2.7.2 = 4.2.13.3
+3.12 & 1.2.6.1 = 4.2.12.2
+3.11 & 1.2.4.3 = 4.2.11.0
+3.10 & 1.2.4.2 = 4.2.10.0
+3.09 & 1.2.4.0 = 4.2.9.0
+3.08 & 1.2.3.1 = 4.2.7.5
+3.07 & 1.2.3.0 = 4.2.7.0
+3.06 & 1.2.2.0 = 4.2.6.2
+3.05 & 1.2.1.0 = 4.2.4.3
+3.04 & 1.2.0.4 = 4.2.3.1
+3.03 & 1.1.2.2 = 4.2.2.0
+3.02 & 1.1.1.1 = 4.2.1.2
+3.01 & 1.1.0.4 = 4.2.0.6
+3.00 & 1.0.0   = 4.1.3.5
+2.10 & 0.25.1  = 4.0.16.6
+2.09 & 0.24.0  = 4.0.15.1
 
 Enjoy.
 --
 Marc-Antoine Desjardins
-ObliqueFX
-madesjardins@obliquefx.com
+marcantoinedesjardins@gmail.com

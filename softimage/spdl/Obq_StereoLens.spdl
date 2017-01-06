@@ -1,4 +1,4 @@
-# SPDL Obq_StereoLens - Created by Marc-Antoine Desjardins - ObliqueFX - madesjardins@obliquefx.com : Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+# SPDL Obq_StereoLens - Created by Marc-Antoine Desjardins - ObliqueFX - marcantoinedesjardins@gmail.com : Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 SPDL
 Version = "2.0.0.0";
 Reference = "{B51DD5A8-F37F-4655-9BF3-F5723736E2B9}";
@@ -11,14 +11,14 @@ PropertySet "Obq_StereoLens"
 		flags = 1;
 	}
 
-	Parameter "viewMode" input
+	Parameter "viewMode1" input
 	{
 		GUID = "{03ED9264-541C-48AD-90CA-E0FB1DE425DF}";
-		Type = integer;
+		Type = string;
+		Texturable = off;
+		Animatable = off;
 		flags = 1;
-		Value = 0;
-		Value Minimum = 0;
-		Value Maximum = 4;
+		Value = "Center Camera";
 	}
 	Parameter "leftCamera" input
 	{
@@ -124,20 +124,12 @@ PropertySet "Obq_StereoLens"
 		Texturable = Off;
 		Animatable = Off;
 	}
-	Parameter "leftCropInfo" input
+	Parameter "nukeCropInfo" input
 	{
-		GUID = "{DEDB0691-B838-4F21-942F-32C8FE977D9A}";
+		GUID = "{93E79E12-5E82-46FE-97F9-7EB002EF1A7F}";
 		Type = string;
 		flags = 1;
-		Value = "Not Stereo";
-		Animatable = Off;
-	}
-	Parameter "rightCropInfo" input
-	{
-		GUID = "{20235B1F-F26F-4527-A7B6-93444DA2DC85}";
-		Type = string;
-		flags = 1;
-		Value = "Not Stereo";
+		Value = "";
 		Animatable = Off;
 	}
 	Parameter "useOverscan" input
@@ -273,18 +265,18 @@ MetaShader "Obq_StereoLens_params_meta"
 
 Defaults
 {
-	viewMode
+	viewMode1
 	{
 		Name = "View Mode";
 		Commands = "{F5C75F11-2F05-11d3-AA95-00AA0068D2C0}";
 		UIType = "Combo";
 		Items
 		{
-			"Center Camera" = 0,
-			"Left Camera" = 1,
-			"Right Camera" = 2,
-			"Stereo Camera <left-right>" = 3,
-			"Stereo Camera <down-up>" = 4
+			"Center Camera" = "Center Camera",
+			"Left Camera" = "Left Camera",
+			"Right Camera" = "Right Camera",
+			"Stereo Camera <Side-by-Side>" = "Stereo Camera <Side-by-Side>",
+			"Stereo Camera <Over-Under>" = "Stereo Camera <Over-Under>"
 		}
 	}
 	leftCamera
@@ -319,7 +311,7 @@ Defaults
 	}
 	recalculateDistanceForSideCameras
 	{
-		Name = "Recalculate focus distance for left and right cameras";
+		Name = "Recalculate Focus Distance for Left and Right Cameras";
 		Commands = "{F5C75F11-2F05-11d3-AA95-00AA0068D2C0}";
 	}
 	useOverscan
@@ -341,7 +333,7 @@ Defaults
 	}
 	filterSize
 	{
-		Name = "Filter size";
+		Name = "Filter Size";
 		Commands = "{F5C75F11-2F05-11d3-AA95-00AA0068D2C0}";
 		UIRange = 0.0 to 5.0;
 	}
@@ -355,14 +347,9 @@ Defaults
 		Name = "Height";
 		Commands = "{F5C75F11-2F05-11d3-AA95-00AA0068D2C0}";
 	}
-	leftCropInfo
+	nukeCropInfo
 	{
-		Name = "Left crop";
-		Commands = "{F5C75F11-2F05-11d3-AA95-00AA0068D2C0}";
-	}
-	rightCropInfo
-	{
-		Name = "Right crop";
+		Name = "Nuke crop";
 		Commands = "{F5C75F11-2F05-11d3-AA95-00AA0068D2C0}";
 	}
 	totalOverscanPixels
@@ -372,7 +359,7 @@ Defaults
 	}
 	updatePassResolution
 	{
-		Name = "Automatic update of pass output resolution";
+		Name = "Automatic Update of Pass Output Resolution";
 		Commands = "{F5C75F11-2F05-11d3-AA95-00AA0068D2C0}";
 	}
 	useDof
@@ -422,7 +409,7 @@ Defaults
 	}
 	focusPlaneIsPlane
 	{
-		Name = "Focus plane is a plane";
+		Name = "Focus Plane is a Plane";
 		Commands = "{F5C75F11-2F05-11d3-AA95-00AA0068D2C0}";
 	}
 	bokehInvert
@@ -448,7 +435,7 @@ Layout "Default"
 	{
 		Group "View Mode"
 		{
-			viewMode;
+			viewMode1;
 		}
 		Group "Cameras"
 		{
@@ -481,8 +468,7 @@ Layout "Default"
 		}
 		Group "Nuke Info"
 		{
-			leftCropInfo;
-			rightCropInfo;
+			nukeCropInfo;
 		}
 	}
 
@@ -603,6 +589,8 @@ end function
 
 Sub updatePassResolution_OnChanged()
 	IF PPG.updatePassResolution.Value = true Then
+		SetValue "Passes.Current.ImageFormatOverride", true
+		SetValue "Passes.Current.ImageFormatPreset", 0
 		SetValue "Passes.Current.ImageLockAspectRatio", false
 		SetValue "Passes.Current.ImageWidth", PPG.renderResolutionX.Value
 		SetValue "Passes.Current.ImageHeight", PPG.renderResolutionY.Value
@@ -610,42 +598,45 @@ Sub updatePassResolution_OnChanged()
 End Sub
 
 Sub change_targetResolution()
-	If PPG.viewMode.Value = 3 then
+	If PPG.viewMode1.Value = "Stereo Camera <Side-by-Side>" then
 		If PPG.useOverscan.Value = true then
 			bleed = Floor( Ceil(PPG.filterSize)/2)
 			PPG.renderResolutionX.Value = 2*(PPG.targetResolutionX + 2*bleed)
 			PPG.renderResolutionY.Value = PPG.targetResolutionY.Value
 			PPG.totalOverscanPixels.Value = 4*bleed
-			PPG.leftCropInfo = "Crop { box {" & bleed & " " & 0 & " " & PPG.targetResolutionX + bleed & " " & PPG.targetResolutionY &"} reformat true crop false name Left}"
-			PPG.rightCropInfo = "Crop { box {" & PPG.renderResolutionX - PPG.targetResolutionX - bleed & " " & 0 & " " & PPG.renderResolutionX - bleed & " " & PPG.targetResolutionY &"} reformat true crop false name Right}"
+			leftCropInfo = "Crop { box {" & bleed & " " & 0 & " " & PPG.targetResolutionX + bleed & " " & PPG.targetResolutionY &"} reformat true crop false name Left selected false xpos -50 ypos 40}"
+			rightCropInfo = "Crop { box {" & PPG.renderResolutionX - PPG.targetResolutionX - bleed & " " & 0 & " " & PPG.renderResolutionX - bleed & " " & PPG.targetResolutionY &"} reformat true crop false name Right selected false xpos 50 ypos 40}"
+			PPG.nukeCropInfo = "Reformat { format """ & PPG.renderResolutionX.Value & " " & PPG.renderResolutionY.Value & " 0 0 " & PPG.renderResolutionX.Value & " " & PPG.renderResolutionY.Value & " 1 ObqStereoLens"& PPG.renderResolutionX.Value &"x"& PPG.renderResolutionY.Value &"PAR1"" resize distort center false filter Impulse name ReformatPAR1 selected false xpos 0 ypos 0}" & vbCrLf & "set ObqNukeCropInfo [stack 0]" & vbCrLf & leftCropInfo& vbCrLf & "push $ObqNukeCropInfo" & vbCrLf & rightCropInfo
 		Else
 			PPG.renderResolutionX.Value = 2*PPG.targetResolutionX
 			PPG.renderResolutionY.Value = PPG.targetResolutionY
 			PPG.totalOverscanPixels.Value = 0
-			PPG.leftCropInfo = "Crop { box {0 0 " & PPG.targetResolutionX & " " & PPG.targetResolutionY &"} reformat true crop false name Left}"
-			PPG.rightCropInfo = "Crop { box {" & PPG.renderResolutionX - PPG.targetResolutionX & " 0 " & PPG.renderResolutionX & " " & PPG.targetResolutionY &"} reformat true crop false name Right}"
+			leftCropInfo = "Crop { box {0 0 " & PPG.targetResolutionX & " " & PPG.targetResolutionY &"} reformat true crop false name Left selected false xpos -50 ypos 40}"
+			rightCropInfo = "Crop { box {" & PPG.renderResolutionX - PPG.targetResolutionX & " 0 " & PPG.renderResolutionX & " " & PPG.targetResolutionY &"} reformat true crop false name Right selected false xpos 50 ypos 40}"
+			PPG.nukeCropInfo = "Reformat { format """ & PPG.renderResolutionX.Value & " " & PPG.renderResolutionY.Value & " 0 0 " & PPG.renderResolutionX.Value & " " & PPG.renderResolutionY.Value & " 1 ObqStereoLens"& PPG.renderResolutionX.Value &"x"& PPG.renderResolutionY.Value &"PAR1"" resize distort center false filter Impulse name ReformatPAR1 selected false xpos 0 ypos 0}" & vbCrLf & "set ObqNukeCropInfo [stack 0]" & vbCrLf & leftCropInfo& vbCrLf & "push $ObqNukeCropInfo" & vbCrLf & rightCropInfo
 		End If
-	ElseIf PPG.viewMode.Value = 4 then
+	ElseIf PPG.viewMode1.Value = "Stereo Camera <Over-Under>" then
 		If PPG.useOverscan.Value = true then
 			bleed = Floor( Ceil(PPG.filterSize.Value)/2)
 			PPG.renderResolutionX.Value = PPG.targetResolutionX 
 			PPG.renderResolutionY.Value = 2*(PPG.targetResolutionY.Value + 2*bleed)
 			PPG.totalOverscanPixels.Value = 4*bleed
-			PPG.leftCropInfo = "Crop { box {" & 0 & " " & bleed & " " & PPG.targetResolutionX & " " &  PPG.targetResolutionY + bleed & "} reformat true crop false name Left}"
-			PPG.rightCropInfo = "Crop { box {" & 0 & " " & PPG.renderResolutionY - bleed - PPG.targetResolutionY & " " & PPG.targetResolutionX & " " &  PPG.renderResolutionY - bleed & "} reformat true crop false name Right}"
+			leftCropInfo = "Crop { box {" & 0 & " " & bleed & " " & PPG.targetResolutionX & " " &  PPG.targetResolutionY + bleed & "} reformat true crop false name Left selected false xpos -50 ypos 40}"
+			rightCropInfo = "Crop { box {" & 0 & " " & PPG.renderResolutionY - bleed - PPG.targetResolutionY & " " & PPG.targetResolutionX & " " &  PPG.renderResolutionY - bleed & "} reformat true crop false name Right selected false xpos 50 ypos 40}"
+			PPG.nukeCropInfo = "Reformat { format """ & PPG.renderResolutionX.Value & " " & PPG.renderResolutionY.Value & " 0 0 " & PPG.renderResolutionX.Value & " " & PPG.renderResolutionY.Value & " 1 ObqStereoLens"& PPG.renderResolutionX.Value &"x"& PPG.renderResolutionY.Value &"PAR1"" resize distort center false filter Impulse name ReformatPAR1 selected false xpos 0 ypos 0}" & vbCrLf & "set ObqNukeCropInfo [stack 0]" & vbCrLf & leftCropInfo& vbCrLf & "push $ObqNukeCropInfo" & vbCrLf & rightCropInfo
 		Else
 			PPG.renderResolutionX.Value = PPG.targetResolutionX
 			PPG.renderResolutionY.Value = 2.0*PPG.targetResolutionY
 			PPG.totalOverscanPixels.Value = 0
-			PPG.leftCropInfo = "Crop { box {0 0 " & PPG.targetResolutionX.Value & " " & PPG.targetResolutionY.Value &"} reformat true crop false name Left}"
-			PPG.rightCropInfo = "Crop { box {" & 0 & " " & PPG.renderResolutionY.Value - PPG.targetResolutionY.Value & " " & PPG.renderResolutionX.Value & " " & PPG.renderResolutionY.Value &"} reformat true crop false name Right}"
+			leftCropInfo = "Crop { box {0 0 " & PPG.targetResolutionX.Value & " " & PPG.targetResolutionY.Value &"} reformat true crop false name Left selected false xpos -50 ypos 40}"
+			rightCropInfo = "Crop { box {" & 0 & " " & PPG.renderResolutionY.Value - PPG.targetResolutionY.Value & " " & PPG.renderResolutionX.Value & " " & PPG.renderResolutionY.Value &"} reformat true crop false name Right selected false xpos 50 ypos 40}"
+			PPG.nukeCropInfo = "Reformat { format """ & PPG.renderResolutionX.Value & " " & PPG.renderResolutionY.Value & " 0 0 " & PPG.renderResolutionX.Value & " " & PPG.renderResolutionY.Value & " 1 ObqStereoLens"& PPG.renderResolutionX.Value &"x"& PPG.renderResolutionY.Value &"PAR1"" resize distort center false filter Impulse name ReformatPAR1 selected false xpos 0 ypos 0}" & vbCrLf & "set ObqNukeCropInfo [stack 0]" & vbCrLf & leftCropInfo& vbCrLf & "push $ObqNukeCropInfo" & vbCrLf & rightCropInfo
 		End If
 	Else
 		PPG.renderResolutionX.Value = PPG.targetResolutionX
 		PPG.renderResolutionY.Value = PPG.targetResolutionY
 		PPG.totalOverscanPixels.Value = 0
-		PPG.leftCropInfo = "none"
-		PPG.rightCropInfo = "none"
+		nukeCropInfo = "none"
 	End If
 	updatePassResolution_OnChanged()
 End Sub
@@ -662,16 +653,14 @@ Sub targetResolutionY_OnChanged()
 	change_targetResolution()
 End Sub
 
-Sub viewMode_OnChanged()
+Sub viewMode1_OnChanged()
 	change_targetResolution()
-	If PPG.viewMode = 3 Or PPG.viewMode = 4 Then
-		PPG.leftCropInfo.Show(True)
-		PPG.rightCropInfo.Show(True)
+	If PPG.viewMode1 = "Stereo Camera <Side-by-Side>" Or PPG.viewMode1 = "Stereo Camera <Over-Under>" Then
+		PPG.nukeCropInfo.Show(True)
 		PPG.useOverscan.Readonly = False
 	Else
 		PPG.useOverscan.Readonly = True
-		PPG.leftCropInfo.Show(False)
-		PPG.rightCropInfo.Show(False)
+		PPG.nukeCropInfo.Show(False)
 	End If
 	PPG.Refresh
 End Sub
@@ -761,7 +750,7 @@ Sub OnInit
 	leftCamera_onChanged()
 	rightCamera_OnChanged()
 	useOverscan_OnChanged()
-	viewMode_OnChanged()
+	viewMode1_OnChanged()
 	PPG.cameraStatus.ReadOnly = True
 	PPG.renderResolutionX.ReadOnly = True
 	PPG.renderResolutionY.ReadOnly = True

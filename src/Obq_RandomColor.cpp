@@ -4,7 +4,7 @@ Obq_RandomColor :
 random color switch based on object name.
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -40,13 +40,12 @@ AI_SHADER_NODE_EXPORT_METHODS(ObqRandomColorMethods);
 //
 enum ObqRandomColorParams {p_randMax, p_seed, p_color01, p_color02, p_color03, p_color04, p_color05, p_color06, p_color07, p_color08, p_color09, p_color10, p_color11, p_color12, p_color13, p_color14, p_color15, p_color16, p_stripModelName, p_stripFrameNumber, p_stripInstanceFrameNumber, p_stripInstanceID,p_stripInstanceShape, p_XtoA};
 
-enum ObqRandomXtoA {SITOA, MTOA, HTOA};
-
 typedef struct 
 {
 	const char* XtoA_name;
 	const char* XtoA_instance_name;
 	int XtoA_instance_len;
+	ObqPluginID plugin;
 }
 ShaderData;
 
@@ -79,32 +78,20 @@ node_parameters
 	AiParameterBOOL("stripInstanceFrameNumber", true);
 	AiParameterBOOL("stripInstanceID", false);
 	AiParameterBOOL("stripInstanceShape", false);
-	AiParameterINT("XtoA",0);
 }
 
 node_initialize
 {
 	ShaderData *data = (ShaderData*) AiMalloc(sizeof(ShaderData));
-	data->XtoA_name = ".SItoA.";
-	data->XtoA_instance_name = ".SItoA.Instance";
-	data->XtoA_instance_len = 15;
-	AiNodeSetLocalData(node,data);
-}
 
-node_update
-{
-	ShaderData *data = (ShaderData*)AiNodeGetLocalData(node);
-	switch(params[p_XtoA].INT)
+	data->plugin = findPluginID(node);
+
+	switch(data->plugin)
 	{
 	case MTOA:
-		data->XtoA_name = ".MtoA.";
-		data->XtoA_instance_name = ".MtoA.Instance";
-		data->XtoA_instance_len = 14;
-		break;
-	case HTOA:
-		data->XtoA_name = ".HtoA.";
-		data->XtoA_instance_name = ".HtoA.Instance";
-		data->XtoA_instance_len = 14;
+		data->XtoA_name = "";
+		data->XtoA_instance_name = ".Instance";
+		data->XtoA_instance_len = 9;
 		break;
 	case SITOA:
 	default:
@@ -113,7 +100,12 @@ node_update
 		data->XtoA_instance_len = 15;
 		break;
 	}
-	
+
+	AiNodeSetLocalData(node,data);
+}
+
+node_update
+{
 }
 
 node_finish
@@ -131,7 +123,7 @@ shader_evaluate
 	
 	// TEST .SItoA.
 	std::size_t len = name.length();
-	std::size_t lastXtoA = name.rfind(data->XtoA_name);
+	std::size_t lastXtoA = (data->plugin==SITOA?name.rfind(data->XtoA_name):len);
 	std::size_t startNameIndex = 0;
 	std::size_t endNameIndex = lastXtoA;
 
@@ -143,7 +135,7 @@ shader_evaluate
 	}
 
 	// INSTANCE TEST
-	std::size_t firstXtoA = name.find(data->XtoA_name);
+	std::size_t firstXtoA = (data->plugin==SITOA?name.find(data->XtoA_name):len);
 
 	// STRIP MODEL
 	if(AiShaderEvalParamBool(p_stripModelName))
@@ -165,7 +157,7 @@ shader_evaluate
 
 	if(stripInstanceFrameNumber || stripInstanceID || stripInstanceShape)
 	{
-		std::size_t startInstanceXtoA = name.find(data->XtoA_instance_name,firstXtoA);
+		std::size_t startInstanceXtoA = name.find(data->XtoA_instance_name,(data->plugin==SITOA?firstXtoA:0));
 		if(startInstanceXtoA != std::string::npos)
 		{
 			// strip the XtoA.Instance

@@ -6,7 +6,7 @@ of a stereo rig in the same frame, saving you one scene loading time for
 each pair of stereo frame. This shader is applied on the center camera.
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -32,12 +32,22 @@ Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.p
 
 #include "Obq_StereoLens.h"
 
+// ENUM MENU
+static const char* ObqViewModeNames[] = 
+{
+	"Center Camera",
+    "Left Camera",
+    "Right Camera",
+    "Stereo Camera <Side-by-Side>",
+    "Stereo Camera <Over-Under>",
+    NULL
+};
 
 // Parameters
 //
 node_parameters
 {
-	AiParameterINT("viewMode" , 0);
+	AiParameterENUM("viewMode1" , THISCAMERA, ObqViewModeNames);
 	AiParameterSTR("leftCamera" , "Camera_L");
 	AiParameterSTR("rightCamera" , "Camera_R");
 	AiParameterFLT("filmbackX" , 0.0f);
@@ -102,33 +112,25 @@ node_initialize
 	data->focusDistance = 100.0f;
 	data->focusPlaneIsPlane = true;
 
-	// Set data
-	AiCameraInitialize(node, data);
-}
-
-node_update
-{
-	AiCameraUpdate(node, false);
-
-	ShaderData *data = (ShaderData*)AiCameraGetLocalData(node);
-
 	// Update shaderData variables
 	AtNode* options = AiUniverseGetOptions();
 	
 	// Overscan
 	float w = float(AiNodeGetInt(options,"xres"));
 	float h = float(AiNodeGetInt(options,"yres"));
-	
-	switch(params[p_viewMode].INT)
+
+	data->viewMode = AiNodeGetInt(node, "viewMode1");
+
+	switch(data->viewMode)
 	{
 	case STEREOLR:
-		data->width  = w - params[p_totalOverscanPixels].INT;
+		data->width  = w - AiNodeGetInt(node, "totalOverscanPixels");
 		data->height  = h;
 		data->overscanRatio = w/data->width;
 		break;
 	case STEREODU:
 		data->width  = w;
-		data->height  = h - params[p_totalOverscanPixels].INT;
+		data->height  = h - AiNodeGetInt(node, "totalOverscanPixels");
 		data->overscanRatio = h/data->height;
 		break;
 	default:
@@ -141,40 +143,56 @@ node_update
 	// Aspect
 	data->pixelRatio = 1.0f/AiNodeGetFlt(options,"aspect_ratio");
 	data->aspect = data->width/(data->height/data->pixelRatio);
+	ObqPluginID plugin = findPluginID(node);
 
 	// Get all 3 cameras and all 3 matrices
 	AtMatrix centerCameraMatrix,leftCameraMatrix,rightCameraMatrix;
 	data->centerCamera = node;
-	AiNodeGetMatrix(node,"matrix",centerCameraMatrix);
-	std::string camNodeName(AiNodeGetName(node));
-	std::size_t sitoaIndex = camNodeName.rfind(".SItoA.");
 
-	data->leftCamera = AiNodeLookUpByName((std::string(params[p_leftCamera].STR).append(camNodeName.substr(sitoaIndex)).c_str()));
-	AiNodeGetMatrix(data->leftCamera,"matrix",leftCameraMatrix);
+	if(plugin == SITOA)
+	{
+		std::string camNodeName(AiNodeGetName(node));
+		std::size_t sitoaIndex = camNodeName.rfind(".SItoA.");
 
-	data->rightCamera = AiNodeLookUpByName((std::string(params[p_rightCamera].STR).append(camNodeName.substr(sitoaIndex)).c_str()));
-	AiNodeGetMatrix(data->rightCamera,"matrix",rightCameraMatrix);
+		data->leftCamera = AiNodeLookUpByName((std::string(AiNodeGetStr(node,"leftCamera")).append(camNodeName.substr(sitoaIndex)).c_str()));
+		data->rightCamera = AiNodeLookUpByName((std::string(AiNodeGetStr(node,"rightCamera")).append(camNodeName.substr(sitoaIndex)).c_str()));
+		
+	}
+	else
+	{
+		data->leftCamera = AiNodeLookUpByName(AiNodeGetStr(node,"leftCamera"));
+		data->rightCamera = AiNodeLookUpByName(AiNodeGetStr(node,"rightCamera"));
+	}
 
-	data->viewMode = params[p_viewMode].INT;
 
 	if(data->centerCamera==NULL)
 	{
 		AiMsgError("Error with center camera... this is not normal...");
+		AiFree(data);
+		return;
 	}
 	else if( data->leftCamera==NULL)
 	{
 		AiMsgError("Left camera doesn't exist. Don't forget the Model name if any. ex: Model.LeftCamera");
+		AiFree(data);
+		return;
 	}
 	else if( data->rightCamera==NULL)
 	{
 		AiMsgError("Right camera doesn't exist. Don't forget the Model name if any. ex: Model.RightCamera");
+		AiFree(data);
+		return;
 	}
 	else
 	{
+		AiNodeGetMatrix(node,"matrix",centerCameraMatrix);
+		AiNodeGetMatrix(data->leftCamera,"matrix",leftCameraMatrix);
+		AiNodeGetMatrix(data->rightCamera,"matrix",rightCameraMatrix);
 
 		// Field of view
 		float fov = AiArrayGetFlt(AiNodeGetArray(node, "fov"),0); // good default value from current camera but left or right should be 
 		AtArray* aFov = NULL;
+
 		aFov = AiNodeGetArray(data->leftCamera, "fov"); // Get horizontal angle fov from left camera
 		if(aFov !=NULL)
 		{
@@ -182,6 +200,7 @@ node_update
 		}
 		else
 		{
+
 			aFov = AiNodeGetArray(data->rightCamera, "fov"); // If left camera doesn't have one, get horizontal angle from right camera
 			if(aFov !=NULL)
 			{
@@ -190,10 +209,8 @@ node_update
 			else
 				fov = AiArrayGetFlt(AiNodeGetArray(node, "fov"),0); // If neither left nor right, get fov from this camera (always good)
 		}
-		
-		
+
 		data->tan_myFov = std::tan(float(fov * AI_DTOR / 2.0));
-		
 		// Rotation and Translation Matrix
 		AtMatrix iCenterCameraMatrix;
 		AiM4Invert(centerCameraMatrix, iCenterCameraMatrix);
@@ -201,32 +218,33 @@ node_update
 		AiM4Mult(data->center2rightCameraMatrix,rightCameraMatrix, iCenterCameraMatrix);
 
 		// Optical Center Offsets
-		data->leftCenterOffset  = 2.0f*params[p_leftCenterOffset].FLT/params[p_filmbackX].FLT;
-		data->rightCenterOffset = 2.0f*params[p_rightCenterOffset].FLT/params[p_filmbackX].FLT;
+		float filmbackX = AiNodeGetFlt(node,"filmbackX");
+		data->leftCenterOffset  = (filmbackX != 0.0 ? 2.0f*AiNodeGetFlt(node,"leftCenterOffset")/filmbackX:0.0f);
+		data->rightCenterOffset = (filmbackX != 0.0 ? 2.0f*AiNodeGetFlt(node,"rightCenterOffset")/filmbackX:0.0f);
 
 		// DOF
-		data->useDof = params[p_useDof].BOOL;
+		data->useDof = AiNodeGetBool(node,"useDof");
 		if(data->useDof)
 		{
 			// DOF related values
-			data->focalDistanceC = params[p_focusDistance].FLT;
-			data->apertureSize = params[p_apertureSize].FLT;
-			data->apertureAspectRatio = params[p_apertureAspectRatio].FLT;
-			data->usePolygonalAperture = params[p_usePolygonalAperture].BOOL;
-			data->apertureBlades = params[p_apertureBlades].INT;
-			data->apertureBladeCurvature = params[p_apertureBladeCurvature].FLT;
-			data->apertureRotation = params[p_apertureRotation].FLT;
-			data->bokehInvert = params[p_bokehInvert].BOOL;
-			data->bokehBias = params[p_bokehBias].FLT;
-			data->bokehGain = 1.0f-params[p_bokehGain].FLT;
+			data->focalDistanceC = AiNodeGetFlt(node,"focusDistance");
+			data->apertureSize = AiNodeGetFlt(node,"apertureSize");
+			data->apertureAspectRatio = AiNodeGetFlt(node,"apertureAspectRatio");
+			data->usePolygonalAperture = AiNodeGetBool(node,"usePolygonalAperture");
+			data->apertureBlades = AiNodeGetInt(node,"apertureBlades");
+			data->apertureBladeCurvature = AiNodeGetFlt(node,"apertureBladeCurvature");
+			data->apertureRotation = AiNodeGetFlt(node,"apertureRotation");
+			data->bokehInvert = AiNodeGetBool(node,"bokehInvert");
+			data->bokehBias = AiNodeGetFlt(node,"bokehBias");
+			data->bokehGain = 1.0f-AiNodeGetFlt(node,"bokehGain");
 
 			if(data->apertureAspectRatio<=0.0f)
 				data->apertureAspectRatio = 0.001f;
 
-			data->focusPlaneIsPlane = params[p_focusPlaneIsPlane].BOOL;
+			data->focusPlaneIsPlane = AiNodeGetBool(node,"focusPlaneIsPlane");
 
 			// Focal Plane
-			if(params[p_recalculateDistanceForSideCameras].BOOL)
+			if(AiNodeGetBool(node,"recalculateDistanceForSideCameras"))
 			{
 				// calculate distance between center and left and between center and right
 				float dLeft = std::sqrt(data->center2leftCameraMatrix[3][0]*data->center2leftCameraMatrix[3][0] + data->center2leftCameraMatrix[3][1]*data->center2leftCameraMatrix[3][1] + data->center2leftCameraMatrix[3][2]*data->center2leftCameraMatrix[3][2]);
@@ -245,10 +263,20 @@ node_update
 
 		AiMsgInfo("----------------------------------------------------");
 		AiMsgInfo("CameraParams : fov = %f",fov);
-		AiMsgInfo("CameraParams : filmback width = %f",params[p_filmbackX].FLT);
-		AiMsgInfo("CameraParams : left optical center offset = %f",params[p_leftCenterOffset].FLT);
-		AiMsgInfo("CameraParams : right optical center offset = %f",params[p_rightCenterOffset].FLT);
+		AiMsgInfo("CameraParams : filmback width = %f",AiNodeGetFlt(node,"filmbackX"));
+		AiMsgInfo("CameraParams : left optical center offset = %f",AiNodeGetFlt(node,"leftCenterOffset"));
+		AiMsgInfo("CameraParams : right optical center offset = %f",AiNodeGetFlt(node,"rightCenterOffset"));
 		AiMsgInfo("CameraParams : overscan ratio = %f", data->overscanRatio);
+		AiMsgInfo("CenterToLeftCameraMatrix :");
+		AiMsgInfo("%f %f %f %f", data->center2leftCameraMatrix[0][0], data->center2leftCameraMatrix[0][1], data->center2leftCameraMatrix[0][2], data->center2leftCameraMatrix[0][3]);
+		AiMsgInfo("%f %f %f %f", data->center2leftCameraMatrix[1][0], data->center2leftCameraMatrix[1][1], data->center2leftCameraMatrix[1][2], data->center2leftCameraMatrix[1][3]);
+		AiMsgInfo("%f %f %f %f", data->center2leftCameraMatrix[2][0], data->center2leftCameraMatrix[2][1], data->center2leftCameraMatrix[2][2], data->center2leftCameraMatrix[2][3]);
+		AiMsgInfo("%f %f %f %f", data->center2leftCameraMatrix[3][0], data->center2leftCameraMatrix[3][1], data->center2leftCameraMatrix[3][2], data->center2leftCameraMatrix[3][3]);
+		AiMsgInfo("CenterToRightCameraMatrix :");
+		AiMsgInfo("%f %f %f %f", data->center2rightCameraMatrix[0][0], data->center2rightCameraMatrix[0][1], data->center2rightCameraMatrix[0][2], data->center2rightCameraMatrix[0][3]);
+		AiMsgInfo("%f %f %f %f", data->center2rightCameraMatrix[1][0], data->center2rightCameraMatrix[1][1], data->center2rightCameraMatrix[1][2], data->center2rightCameraMatrix[1][3]);
+		AiMsgInfo("%f %f %f %f", data->center2rightCameraMatrix[2][0], data->center2rightCameraMatrix[2][1], data->center2rightCameraMatrix[2][2], data->center2rightCameraMatrix[2][3]);
+		AiMsgInfo("%f %f %f %f", data->center2rightCameraMatrix[3][0], data->center2rightCameraMatrix[3][1], data->center2rightCameraMatrix[3][2], data->center2rightCameraMatrix[3][3]);
 		if(data->useDof)
 		{
 			AiMsgInfo("CameraParams : focal distance = %f",data->focalDistanceC);
@@ -264,12 +292,23 @@ node_update
 		AiMsgInfo("----------------------------------------------------");
 	}
 
+	// Set data
+	AiCameraInitialize(node, data);
+
+}
+
+node_update
+{
+	AiCameraUpdate(node, false);
+	/*ShaderData *data = (ShaderData*)AiCameraGetLocalData(node);*/
+	
 }
 
 node_finish
 {
 	ShaderData *data = (ShaderData*)AiCameraGetLocalData(node);
-	AiFree(data);
+	if(data !=NULL)
+		AiFree(data);
 	AiCameraDestroy(node);
 }
 

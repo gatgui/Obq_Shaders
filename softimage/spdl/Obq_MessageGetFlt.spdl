@@ -1,4 +1,4 @@
-# SPDL Obq_MessageGetFlt - Created by Marc-Antoine Desjardins - ObliqueFX - madesjardins@obliquefx.com : Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+# SPDL Obq_MessageGetFlt - Created by Marc-Antoine Desjardins - ObliqueFX - marcantoinedesjardins@gmail.com : Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 SPDL
 Version = "2.0.0.0";
 Reference = "{B39532D2-E0B6-459A-AE15-55D8D662F0F3}";
@@ -26,7 +26,7 @@ PropertySet "Obq_MessageGetFlt"
 		Type = integer;
 		Value = 0;
 		Value Minimum = 0;
-		Value Maximum = 0;
+		Value Maximum = 1;
 		Texturable = Off;
 		Animatable = On;
 	}
@@ -34,7 +34,7 @@ PropertySet "Obq_MessageGetFlt"
 	{
 		GUID = "{51920947-A131-4308-B757-2FB4B56B4827}";
 		Type = string;
-		Value = "";
+		Value = "Of";
 		Texturable = Off;
 		Animatable = Off;
 	}
@@ -79,7 +79,8 @@ Defaults
 		UIType = "Combo";
 		Items
 		{
-			"Obq_Toon" = 0
+			"Default" = 0,
+			"Obq_Toon" = 1
 		}
 	}
 	key
@@ -115,6 +116,8 @@ Logic
 
 	Sub preset_OnChanged()
 		If PPG.preset.Value = 0 Then
+			PPG.key.Value = "Of"
+		ElseIf PPG.preset.Value = 1 Then
 			PPG.key.Value = "OToon"
 		End If
 	End Sub
@@ -132,7 +135,7 @@ Logic
 	End Sub
 
 	Sub OnInit
-		PPG.PPGLayout.SetAttribute "HelpFile","http://s3aws.obliquefx.com/public/shaders/help_files/Obq_MessageGetFlt.html"
+		PPG.PPGLayout.SetAttribute "HelpFile","http://s3aws.obliquefx.com/public/shaders/help_files/Obq_MessageGet.html"
 		mode_OnChanged()
 		PPG.Refresh
 	End Sub

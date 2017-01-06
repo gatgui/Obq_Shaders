@@ -28,13 +28,9 @@
 #include "O_Common.h"
 
 enum ObqXYZ2RGB { SRGB_ILLUM_E, SRGB_ILLUM_D65_BRADFORD_E, SRGB_ILLUM_D65, KEEP_XYZ };
+enum ObqSpectrumGamma{OUTPUT_LINEAR, OUTPUT_SRGB};
+enum ObqSpectrumUnits{UNITS_NANO, UNITS_MICRO};
 
-// enum for backfacemode
-enum {OUTPUT_LINEAR, OUTPUT_SRGB};
-
-// enum for fresnel equations
-//
-enum {INPUT_RGB, INPUT_STRING};
 
 template <int nSamples> class CoefficientSpectrum;
 class RGBSpectrum;

@@ -4,7 +4,7 @@ Obq_Colorspace :
 Convertes between different colorspaces
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -54,16 +54,74 @@ typedef struct
 }
 ShaderData;
 
+// ENUM MENU
+static const char* OIlluminantIDNames[] = 
+{
+	"A",
+	"B",
+	"C",
+	"D50",
+	"D55",
+	"D65",
+	"D75",
+	"E",
+	"F2",
+	"F7",
+	"F11",
+	"D60",
+    NULL
+};
+// Gamma IDs
+static const char* OGammaIDNames[] = 
+{
+	"Linear",
+	"1.8 (Apple)",
+	"2.2",
+	"sRGB",
+	"2.4",
+	"Rec.709",
+	"L*",
+    NULL
+};
+
+// ColorSpace name
+static const char* OCSIDNames[] = 
+{
+	"XSI Linear RGB",
+	"Adobe RGB 1998",
+	"Apple RGB",
+	"Best RGB",
+	"Beta RGB",
+	"Bruce RGB",
+	"CIE RGB",
+	"ColorMatch RGB",
+	"Don RGB 4",
+	"ECI RGB V2",
+	"EKTA Space PS5",
+	"NTSC RGB",
+	"PAL/SECAM RGB",
+	"ProPhoto",
+	"SMPTE_C",
+	"sRGB",
+	"Wide Gamut RGB",
+	"Rec.709",
+	"Rec.2020",
+	"CIE XYZ",
+	"Alexa Wide Gammut RGB",
+	"ACEScg",
+    NULL
+};
+
 
 node_parameters
 {
 	AiParameterRGBA("color",1.0f,1.0f,1.0f,1.0f);
-	AiParameterINT("csGammaIn",G_sRGB); 
-	AiParameterINT("csGammaOut",G_LINEAR); 
-	AiParameterINT("csIlluminantIn",ILMNT_D65); 
-	AiParameterINT("csIlluminantOut",ILMNT_D65); 
-	AiParameterINT("csPrimariesIn",CS_sRGB); 
-	AiParameterINT("csPrimariesOut",CS_sRGB); 
+	AiParameterENUM("csGammaIn",G_sRGB, OGammaIDNames); 
+	AiParameterENUM("csGammaOut",G_LINEAR,OGammaIDNames); 
+	AiParameterENUM("csIlluminantIn",ILMNT_D65,OIlluminantIDNames); 
+	AiParameterENUM("csIlluminantOut",ILMNT_D65,OIlluminantIDNames); 
+	AiParameterENUM("csPrimariesIn",CS_sRGB, OCSIDNames); 
+	AiParameterENUM("csPrimariesOut",CS_sRGB, OCSIDNames); 
 	AiParameterBOOL("switchInOut",false);
 	AiParameterBOOL("useBradford",true);
 	AiParameterBOOL("clamp",true);

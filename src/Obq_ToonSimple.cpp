@@ -4,7 +4,7 @@ Obq_ToonSimple :
 	Simple Toon shader
 
 *------------------------------------------------------------------------
-Copyright (c) 2013 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2013 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -35,10 +35,19 @@ Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.p
 //
 AI_SHADER_NODE_EXPORT_METHODS(ObqToonSimpleMethods);
 
+// ENUM MENU
+static const char* Obq_SimpleCompModeNames[] = 
+{
+	"Add",
+	"Over",
+	"Max",
+	"Screen",
+    NULL
+};
 
 node_parameters
 {
-	AiParameterINT("global_compMode",1);
+	AiParameterENUM("global_compMode",1,Obq_SimpleCompModeNames);
 	AiParameterBOOL("global_multByLightColor",true);
 
 	AiParameterRGB("ambient_color",1.0f,1.0f,1.0f);
@@ -361,6 +370,13 @@ shader_evaluate
 				AiAOVSetRGBA (sg, data->ambient_fb_str, ambient_sum_color);
 			}
 		}
+		else if(sg->Rt & AI_RAY_CAMERA && AiAOVEnabled(data->ambient_fb_str, AI_TYPE_RGBA))
+		{
+			AtRGBA solidBlack = AI_RGBA_BLACK;
+			solidBlack.a = 1.0f;
+
+			AiAOVSetRGBA (sg, data->ambient_fb_str, solidBlack);
+		}
 
 		if(do_diffuse)
 		{	
@@ -406,6 +422,17 @@ shader_evaluate
 					diffuse_sum_color.a = 1.0f;
 				AiAOVSetRGBA (sg, data->diffuse_fb_str, diffuse_sum_color);
 			}
+		}
+		else if(sg->Rt & AI_RAY_CAMERA && AiAOVEnabled(data->diffuse_fb_str, AI_TYPE_RGBA))
+		{
+			AtRGBA solidBlack = AI_RGBA_BLACK;
+			
+			if(!data->putAlphaInFb)
+				solidBlack.a = 1.0f;
+			else
+				solidBlack.a = 0.0f;
+
+			AiAOVSetRGBA (sg, data->diffuse_fb_str, solidBlack);
 		}
 
 		if(do_highlight) 
@@ -454,6 +481,17 @@ shader_evaluate
 					highlight_sum_color.a = 1.0f;
 				AiAOVSetRGBA (sg, data->highlight_fb_str, highlight_sum_color);
 			}
+		}
+		else if(sg->Rt & AI_RAY_CAMERA && AiAOVEnabled(data->highlight_fb_str, AI_TYPE_RGBA))
+		{
+			AtRGBA solidBlack = AI_RGBA_BLACK;
+			
+			if(!data->putAlphaInFb)
+				solidBlack.a = 1.0f;
+			else
+				solidBlack.a = 0.0f;
+
+			AiAOVSetRGBA (sg, data->highlight_fb_str, solidBlack);
 		}
 
 		if(do_rimlight)
@@ -511,6 +549,17 @@ shader_evaluate
 					rimlight_sum_color.a = 1.0f;
 				AiAOVSetRGBA (sg, data->rimlight_fb_str, rimlight_sum_color);
 			}
+		}
+		else if(sg->Rt & AI_RAY_CAMERA && AiAOVEnabled(data->rimlight_fb_str, AI_TYPE_RGBA))
+		{
+			AtRGBA solidBlack = AI_RGBA_BLACK;
+			
+			if(!data->putAlphaInFb)
+				solidBlack.a = 1.0f;
+			else
+				solidBlack.a = 0.0f;
+
+			AiAOVSetRGBA (sg, data->rimlight_fb_str, solidBlack);
 		}
 
 		if(sg->Rt & AI_RAY_CAMERA && AiAOVEnabled(data->contour_fb_str, AI_TYPE_RGB))

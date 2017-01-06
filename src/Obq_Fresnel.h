@@ -4,7 +4,7 @@ Obq_Fresnel :
 	a dielectric and a complex fresnel term node. It uses pbrt spectrum class.
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -39,26 +39,12 @@ AI_SHADER_NODE_EXPORT_METHODS(ObqFresnelMethods);
 //
 enum ObqFresnelParams { p_mode, p_iorFilename, p_lambdaUnits, p_iorRGB, p_kRGB, p_method, p_iorInRGB, p_ratioFsFp, p_transmittance, p_backfaceMode, p_useLUT, p_LUTSampleSize, p_useFullSpectrum, p_degamma, p_outputGamma, p_lambdasStr, p_etasStr, p_ksStr, p_inputType, p_ccMode, p_hueShift, p_saturationMod, p_satOp, p_roughness, p_roughnessSampleSize, p_xyz2rgb};
 
-// enum for fresnel equations
-//
-enum {REFRACTIVE, METALS};
-
-// enum for units
-//
-enum {UNITS_NANO, UNITS_MICRO};
-
-// enum for mode
-//
-enum {MODE_CUSTOM, MODE_PRESET_LEGACY, MODE_FILES};
-
-// enum for backfacemode
-enum {BACKFACE_SAME, BACKFACE_SWAP, BACKFACE_WHITE, BACKFACE_BLACK};
-
-// enum for colorcorrection
-enum {CC_OFF, CC_HSV, CC_HLS};
-
-// enum for colorcorrection
-enum {CC_ADD, CC_MUL, CC_POW};
+enum ObqFresnelMethod {REFRACTIVE, METALS};
+enum ObqFresnelMode{MODE_CUSTOM, MODE_PRESET_LEGACY, MODE_FILE};
+enum ObqInputMode{INPUT_RGB, INPUT_STRING};
+enum ObqFresnelBackfaceMode{BACKFACE_SAME, BACKFACE_SWAP, BACKFACE_WHITE, BACKFACE_BLACK};
+enum ObqFresnelCCMode{CC_OFF, CC_HSV, CC_HLS};
+enum ObqFresnelCCOp{CC_ADD, CC_MUL, CC_POW};
 
 // shader data struct
 //

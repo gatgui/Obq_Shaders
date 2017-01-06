@@ -4,7 +4,7 @@ Obq_Atmosphere :
 	Earth's atmosphere
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -40,7 +40,7 @@ AI_SHADER_NODE_EXPORT_METHODS(ObqAtmosphereMethods);
 
 // enum of parameters
 //
-enum ObqAtmosphereParams { p_colorKd, p_use3dKd, p_absorption, p_use3dAbsorption, p_asymmetry, p_stepSize, p_stepJitter, p_useBiasGain, p_bias, p_gain,p_useBiasGainDot, p_biasDot, p_gainDot,p_radiusFalloffMode, p_falloffStart, p_falloffExponent, p_objectCenter, p_compensateForCloudOpacity, p_divideColorByOpacity, p_useMaximumRayLength, p_maximumRayLength, p_secondaryTypesToo};
+enum ObqAtmosphereParams { p_colorKd, /*p_use3dKd,*/ p_absorption, /*p_use3dAbsorption,*/ p_asymmetry, p_stepSize, p_stepJitter, p_useBiasGain, p_bias, p_gain,p_useBiasGainDot, p_biasDot, p_gainDot,p_radiusFalloffMode, p_falloffStart, p_falloffExponent, p_objectCenter, p_compensateForCloudOpacity, p_divideColorByOpacity, p_useMaximumRayLength, p_maximumRayLength, p_secondaryTypesToo};
 
 enum ObqAtmosphereFalloffMode {RFM_NONE, RFM_MATRIX, RFM_VECTOR};
 
@@ -50,12 +50,17 @@ enum ObqAtmoDivide{ATMO_NEVER, ATMO_BEFORE, ATMO_AFTER};
 
 enum ObqAtmoCompensate{ATMO_COMP_NEVER, ATMO_COMP_DROP, ATMO_COMP_RAISE};
 
+
 // Shader Data Structure
 //
 typedef struct 
 {
 	int	falloffMode;
+	int compensateForCloudOpacity; 
+	int divideColorByOpacity;
 	bool secondaryTypesToo;
+	bool use3dKd;
+	bool use3dAbsorption;
 }
 ShaderData;
 

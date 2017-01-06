@@ -7,7 +7,7 @@
 %synopsisStart
 
 %pp :: A camera lens shader that allows you to render a pair of stereo images into a single frame.
-%image :: src/images/Obq_StereoLens_01.jpg :: Synopsis image :: 0
+%image :: images/Obq_StereoLens_01.jpg :: Synopsis image :: 0
 %idesc :: Example of lizard rendered with Obq_StereoLens.
 %warning :: Using SItoA 3.1.2 and up, you need to add an Arnold Camera Option property and select "Custom (lens shader)" as the camera type.
 
@@ -21,14 +21,14 @@
 
 %section :: View Mode
 
-%param :: View Mode <em>[viewMode]</em>
+%param :: View Mode <em>[viewMode1]</em>
 %pp :: This is the type of frame that will be rendered :
 %tableStart
 %tableItem :: 160 :: Center Camera :: because the lens shader is applied to the center camera, this is the view as is.
 %tableItem :: 160 :: Left Camera :: renders what the left camera views.
 %tableItem :: 160 :: Right Camera :: renders what the right camera views.
-%tableItem :: 160 :: Stereo Camera &lt;left-right&gt; :: renders a single frame of the stereo camera pair, the left camera subframe to the left side and the right camera subframe to the right.
-%tableItem :: 160 :: Stereo Camera &lt;down-up&gt; :: like the previous option, but the left camera subframe will be at the bottom and the right camera subframe will be on top. This is the prefered rendering mode for stereo image pair.
+%tableItem :: 160 :: Stereo Camera &lt;Side-by-Side&gt; :: renders a single frame of the stereo camera pair, the left camera subframe to the left side and the right camera subframe to the right.
+%tableItem :: 160 :: Stereo Camera &lt;over-under&gt; :: like the previous option, but the left camera subframe will be at the bottom and the right camera subframe will be on top. This is the prefered rendering mode for stereo image pair.
 %tableEnd
 %note :: Whenever you use a Stereo Camera &lt;...&gt; view mode, the output resolution in the proper dimension will be doubled.
 
@@ -107,7 +107,7 @@
 %param :: Blade Curvature <em>[apertureBladeCurvature]</em>
 %pp :: A value representing how sharp is the shape of the iris. A value of 1 will give a perfect circle. A value of 0 will give a sharp shape. Values smaller than 0, will tend to give a star shape iris.
 
-%image :: src/images/Obq_bokeh_04.jpg :: Blade curvature :: 512
+%image :: images/Obq_bokeh_04.jpg :: Blade curvature :: 512
 %idesc :: Blade curvature of 1, 0, -1, -2 and -3.
 
 %param :: Rotation <em>[apertureRotation]</em>
@@ -133,13 +133,13 @@
 %tableItem :: 90 :: Good bokeh :: (invert, bias, gain) values around (true, 0.33, 0.685 ).
 %tableEnd
 
-%image :: src/images/Obq_bokeh_03.jpg :: Bokeh looks2 :: 256
+%image :: images/Obq_bokeh_03.jpg :: Bokeh looks2 :: 256
 %idesc :: Poor, Neutral and Good bokeh.
 
-#%image :: src/images/Obq_bokeh_01.jpg :: Bokeh looks :: 512
+#%image :: images/Obq_bokeh_01.jpg :: Bokeh looks :: 512
 #%idesc :: Bokeh looks with different bias and gain values (non inverted).
 
-#%image :: src/images/Obq_bokeh_02.jpg :: Bokeh looks2 :: 512
+#%image :: images/Obq_bokeh_02.jpg :: Bokeh looks2 :: 512
 #%idesc :: Bokeh looks with different bias and gain values (inverted).
 
 

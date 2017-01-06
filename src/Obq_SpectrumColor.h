@@ -4,7 +4,7 @@ Obq_Fresnel :
 	a dielectric and a complex fresnel term node. It uses pbrt spectrum class.
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -32,11 +32,8 @@ Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.p
 #include "pbrt/spectrum.h"
 
 
-// enum for units
-enum {UNITS_NANO, UNITS_MICRO};
-
 // enum for mode
-enum {MODE_FILES, MODE_STRING};
+enum ObqSpectrumMode{MODE_FILE, MODE_STRING};
 
 // shader data struct
 typedef struct 

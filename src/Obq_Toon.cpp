@@ -4,7 +4,7 @@ Obq_Toon :
 	Toon and custom toon shader
 
 *------------------------------------------------------------------------
-Copyright (c) 2013 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2013 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -35,12 +35,58 @@ Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.p
 //
 AI_SHADER_NODE_EXPORT_METHODS(ObqToonMethods);
 
+// ENUM MENU
+static const char* Obq_ModeNames[] = 
+{
+	"Parameters",
+	"Image",
+	"Gradient",
+    NULL
+};
+static const char* Obq_CompModeNames[] = 
+{
+	"Add",
+	"Over",
+	"Max",
+	"Screen",
+    NULL
+};
+static const char* Obq_LoopModeNames[] = 
+{
+	"Add all values",
+	"Use sum for value",
+	"Use max for value",
+	"Remap value",
+	"Remap inputs",
+    NULL
+};
+static const char* Obq_LoopLightModeNames[] = 
+{
+	"Add",
+	"Add (Clamped)",
+	"Maximum",
+	"Multiply",
+    NULL
+};
+static const char* Obq_ImageTypeNames[] = 
+{
+	"1D",
+    "2D",
+    NULL
+};
+static const char* Obq_RemapModeNames[] = 
+{
+	"Use Average",
+	"Use Luminance",
+	"Use Each Channel",
+    NULL
+};
 
 node_parameters
 {
-	AiParameterINT("global_loopLightMode",0);
-	AiParameterINT("global_compMode",1);
-	AiParameterINT("global_loopMode",0);
+	AiParameterENUM("global_loopLightMode",0,Obq_LoopLightModeNames);
+	AiParameterENUM("global_compMode",1,Obq_CompModeNames);
+	AiParameterENUM("global_loopMode",0,Obq_LoopModeNames);
 	AiParameterBOOL("global_multByLightColor",true);
 
 	AiParameterRGB("ambient_color",1.0f,1.0f,1.0f);
@@ -51,29 +97,29 @@ node_parameters
 	AiParameterFLT("diffuse_scale",1.0f);
 	AiParameterFLT("diffuse_coverage",1.0f);
 	AiParameterFLT("diffuse_softness",1.0);
-	AiParameterINT("diffuse_mode",0);
+	AiParameterENUM("diffuse_mode",0,Obq_ModeNames);
 	AiParameterRGB("diffuse_gradient",1.0f,1.0f,1.0f);
 	AiParameterRGB("diffuse_image",1.0f,1.0f,1.0f);
-	AiParameterINT("diffuse_imageType",0);
+	AiParameterENUM("diffuse_imageType",0,Obq_ImageTypeNames);
 
 	AiParameterRGB("highlight_color",1.0f,1.0f,1.0f);
 	AiParameterFLT("highlight_scale",0.0f);
 	AiParameterFLT("highlight_exponent",50.0f);
 	AiParameterFLT("highlight_coverage",1.0f);
 	AiParameterFLT("highlight_softness",1.0f);
-	AiParameterINT("highlight_mode",0);
+	AiParameterENUM("highlight_mode",0,Obq_ModeNames);
 	AiParameterRGB("highlight_gradient",1.0f,1.0f,1.0f);
 	AiParameterRGB("highlight_image",1.0f,1.0f,1.0f);
-	AiParameterINT("highlight_imageType",0);
+	AiParameterENUM("highlight_imageType",0,Obq_ImageTypeNames);
 
 	AiParameterRGB("rimlight_color",1.0f,1.0f,1.0f);
 	AiParameterFLT("rimlight_scale",0.0f);
 	AiParameterFLT("rimlight_coverage",1.0f);
 	AiParameterFLT("rimlight_softness",1.0f);
-	AiParameterINT("rimlight_mode",0);
+	AiParameterENUM("rimlight_mode",0,Obq_ModeNames);
 	AiParameterRGB("rimlight_gradient",1.0f,1.0f,1.0f);
 	AiParameterRGB("rimlight_image",1.0f,1.0f,1.0f);
-	AiParameterINT("rimlight_imageType",0);
+	AiParameterENUM("rimlight_imageType",0,Obq_ImageTypeNames);
 
 	AiParameterSTR("ambient_fb_str","");
 	AiParameterSTR("diffuse_fb_str","");
@@ -116,7 +162,7 @@ node_parameters
 	AiParameterRGB("diffuse_shaderInput",0.0f,0.0f,0.0f);
 	AiParameterRGB("highlight_shaderInput",0.0f,0.0f,0.0f);
 
-	AiParameterINT("global_remapMode",OBQ_REMAPRGB);
+	AiParameterENUM("global_remapMode",OBQ_REMAPRGB,Obq_RemapModeNames);
 	AiParameterBool("global_remapMultByColor",false);
 
 	AiParameterBool("global_clamp",false);
@@ -1146,6 +1192,13 @@ shader_evaluate
 				AiAOVSetRGBA (sg, data->ambient_fb_str, ambient_sum_color);
 			}
 		}
+		else if(sg->Rt & AI_RAY_CAMERA && AiAOVEnabled(data->ambient_fb_str, AI_TYPE_RGBA))
+		{
+			AtRGBA solidBlack = AI_RGBA_BLACK;
+			solidBlack.a = 1.0f;
+
+			AiAOVSetRGBA (sg, data->ambient_fb_str, solidBlack);
+		}
 
 		if(do_diffuse)
 		{	
@@ -1191,6 +1244,17 @@ shader_evaluate
 					diffuse_sum_color.a = 1.0f;
 				AiAOVSetRGBA (sg, data->diffuse_fb_str, diffuse_sum_color);
 			}
+		}
+		else if(sg->Rt & AI_RAY_CAMERA && AiAOVEnabled(data->diffuse_fb_str, AI_TYPE_RGBA))
+		{
+			AtRGBA solidBlack = AI_RGBA_BLACK;
+			
+			if(!data->putAlphaInFb)
+				solidBlack.a = 1.0f;
+			else
+				solidBlack.a = 0.0f;
+
+			AiAOVSetRGBA (sg, data->diffuse_fb_str, solidBlack);
 		}
 
 		if(do_highlight) 
@@ -1239,6 +1303,17 @@ shader_evaluate
 					highlight_sum_color.a = 1.0f;
 				AiAOVSetRGBA (sg, data->highlight_fb_str, highlight_sum_color);
 			}
+		}
+		else if(sg->Rt & AI_RAY_CAMERA && AiAOVEnabled(data->highlight_fb_str, AI_TYPE_RGBA))
+		{
+			AtRGBA solidBlack = AI_RGBA_BLACK;
+			
+			if(!data->putAlphaInFb)
+				solidBlack.a = 1.0f;
+			else
+				solidBlack.a = 0.0f;
+
+			AiAOVSetRGBA (sg, data->highlight_fb_str, solidBlack);
 		}
 
 		if(do_rimlight)
@@ -1314,6 +1389,17 @@ shader_evaluate
 					rimlight_sum_color.a = 1.0f;
 				AiAOVSetRGBA (sg, data->rimlight_fb_str, rimlight_sum_color);
 			}
+		}
+		else if(sg->Rt & AI_RAY_CAMERA && AiAOVEnabled(data->rimlight_fb_str, AI_TYPE_RGBA))
+		{
+			AtRGBA solidBlack = AI_RGBA_BLACK;
+			
+			if(!data->putAlphaInFb)
+				solidBlack.a = 1.0f;
+			else
+				solidBlack.a = 0.0f;
+
+			AiAOVSetRGBA (sg, data->rimlight_fb_str, solidBlack);
 		}
 
 		if(sg->Rt & AI_RAY_CAMERA && AiAOVEnabled(data->contour_fb_str, AI_TYPE_RGBA))

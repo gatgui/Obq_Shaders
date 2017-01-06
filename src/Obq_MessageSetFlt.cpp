@@ -4,7 +4,7 @@ Obq_MessageSetFlt :
 	Sets the value in the message passing queue with message as key.
 
 *------------------------------------------------------------------------
-Copyright (c) 2013 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2013 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -59,7 +59,7 @@ ShaderData;
 node_parameters
 {
 	AiParameterRGBA("passthrough", 1.0f,1.0f,1.0f,1.0f);
-	AiParameterSTR("key", "O1");
+	AiParameterSTR("key", "Of");
 	AiParameterFLT("value", 0.0f);
 	AiParameterBOOL("setAfter", false);
 	AiParameterBOOL("restoreValue", false);
@@ -69,19 +69,15 @@ node_parameters
 node_initialize
 {
 	ShaderData *data = (ShaderData*) AiMalloc(sizeof(ShaderData));
-	data->key = "O1";
-	data->setAfter = false;
-	data->restoreValue = false;
 	AiNodeSetLocalData(node,data);
+
+	data->key = AiNodeGetStr(node,"key");
+	data->setAfter = AiNodeGetBool(node, "setAfter");
+	data->restoreValue = AiNodeGetBool(node, "restoreValue");
 }
 
 node_update
 {
-	// Access shader Data
-	ShaderData *data = (ShaderData*)AiNodeGetLocalData(node);
-	data->key = params[p_key].STR;
-	data->setAfter = params[p_setAfter].BOOL;
-	data->restoreValue = params[p_restoreValue].BOOL;
 }
 
 node_finish
@@ -103,7 +99,7 @@ shader_evaluate
 	}
 	else
 	{
-		float restoredValue = 0.0;
+		float restoredValue = 0.0f;
 		if(data->restoreValue)
 			if(!AiStateGetMsgFlt(data->key, &restoredValue))
 				restoredValue = AiShaderEvalParamFlt(p_defaultRestoredValue);

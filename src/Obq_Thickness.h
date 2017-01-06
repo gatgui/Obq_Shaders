@@ -5,7 +5,7 @@ Obq_Thickness.h :
 	or the number of objects in this direction
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -43,7 +43,7 @@ enum ObqThicknessParams { p_sampleLevel, p_coneAngle, p_useVdotNForMaxAngle, p_c
 
 // enum for direction mode
 //
-enum { D_VIEW, D_NOR, D_NOR_FF, D_RFL, D_RFR, D_CUSTOM };
+enum ObqDirViewMode{ D_VIEW, D_NOR, D_NOR_FF, D_RFL, D_RFR, D_CUSTOM };
 
 // Shader Data Structure
 //

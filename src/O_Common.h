@@ -4,7 +4,7 @@ Obq_Common :
 	Common header for the Obq_Shaders
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -41,6 +41,7 @@ Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.p
 #include <iomanip>
 #include <string>
 #include <vector>
+#include <cstring>
 
 #ifdef _WIN32
 	#include <glm\glm.hpp>
@@ -57,6 +58,7 @@ Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.p
 // enum for file type
 //
 enum ObqFileType {TYPE_CSV, TYPE_TXT, TYPE_SPD, TYPE_BAD};
+enum ObqPluginID { SITOA, MTOA, HTOA, C4DTOA };
 
 static const int c_ObqHemisphereThetaRes = 32;
 static const float c_ObqHemisphereThetaResM1f = c_ObqHemisphereThetaRes-1.0f;
@@ -973,6 +975,45 @@ inline void split(const  std::string& s, char c, std::vector<std::string>& v) {
    }
 }
 
+
+// Find what plugin is used SItoA, MtoA, HtoA, etc.
+inline ObqPluginID findPluginID()
+{
+	ObqPluginID plugin = SITOA;
+	AtMetaDataIterator *ppiter = AiNodeEntryGetMetaDataIterator(AiNodeGetNodeEntry(AiUniverseGetOptions()));
+	while (!AiMetaDataIteratorFinished(ppiter))
+	{
+		const AtMetaDataEntry *ppentry = AiMetaDataIteratorGetNext(ppiter);
+		if(std::string(ppentry->name).find("maya.id") != std::string::npos)
+		{
+			plugin=MTOA;
+			break;
+		}
+	}
+	AiMetaDataIteratorDestroy(ppiter);
+
+	if(plugin == SITOA)
+		AiMsgInfo("[Obq_Common] SItoA naming rules.");
+	else if(plugin == MTOA)
+		AiMsgInfo("[Obq_Common] MtoA naming rules.");
+
+	return plugin;
+}
+
+// Find what plugin is used SItoA, MtoA, HtoA, etc.
+inline ObqPluginID findPluginID(AtNode* node)
+{
+	ObqPluginID plugin = MTOA;
+	if(std::string(AiNodeGetName(node)).find(".SItoA.") != std::string::npos)
+		plugin = SITOA;
+
+	if(plugin == SITOA)
+		AiMsgInfo("[Obq_Common] SItoA naming rules.");
+	else if(plugin == MTOA)
+		AiMsgInfo("[Obq_Common] MtoA naming rules.");
+
+	return plugin;
+}
 
 /////////////////////////////////////////////////////////
 // OBQ CLASSES

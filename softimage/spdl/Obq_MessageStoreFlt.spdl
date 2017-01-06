@@ -1,4 +1,4 @@
-# SPDL Obq_MessageStoreFlt - Created by Marc-Antoine Desjardins - ObliqueFX - madesjardins@obliquefx.com : Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+# SPDL Obq_MessageStoreFlt - Created by Marc-Antoine Desjardins - ObliqueFX - marcantoinedesjardins@gmail.com : Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 SPDL
 Version = "2.0.0.0";
 Reference = "{D2FCE350-AB5B-4E59-9EF6-2DEEEFD0B184}";
@@ -21,7 +21,7 @@ PropertySet "Obq_MessageStoreFlt"
 	{
 		GUID = "{4AB4ACAB-A294-417B-A698-5001395AA536}";
 		Type = string;
-		Value = "O1";
+		Value = "Of";
 		Texturable = Off;
 		Animatable = On;
 	}
@@ -187,7 +187,7 @@ Sub AddValueChannel_OnClicked
 End Sub
 
 Sub OnInit
-	PPG.PPGLayout.SetAttribute "HelpFile","http://s3aws.obliquefx.com/public/shaders/help_files/Obq_MessageStoreFlt.html"
+	PPG.PPGLayout.SetAttribute "HelpFile","http://s3aws.obliquefx.com/public/shaders/help_files/Obq_MessageStore.html"
 	FillChannelCombo siRenderChannelGrayscaleType, "AOVName"
 	PPG.Refresh
 End Sub

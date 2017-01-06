@@ -4,7 +4,7 @@ Obq_Atmosphere :
 Earth's atmosphere
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -30,14 +30,37 @@ Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.p
 
 #include "Obq_Atmosphere.h"
 
+// Menu Enums
+static const char* ObqAtmosphereFalloffModeNames[] = 
+{
+	"Don't Use Radius Falloff",
+    "Get Center From Object Matrix",
+    "Get Center From Object Center Vector",
+    NULL
+};
+static const char* ObqAtmoDivideNames[] = 
+{
+	"Never",
+    "Before Bias-Gain",
+    "After Bias-Gain",
+    NULL
+};
+static const char* ObqAtmoCompensateNames[] = 
+{
+	"Never",
+    "By dropping max opacity",
+    "By raising total opacity",
+    NULL
+};
+
 // parameters
 //
 node_parameters
 {
 	AiParameterRGB("colorKd", 0.5f,0.7f,1.0f);					
-	AiParameterBOOL("use3dKd", false);							
+	//AiParameterBOOL("use3dKd", false);							
 	AiParameterFLT("absorption", 0.5f);							
-	AiParameterBOOL("use3dAbsorption", false);					
+	//AiParameterBOOL("use3dAbsorption", false);					
 	AiParameterFLT("asymmetry", 0.0f);							
 	AiParameterFLT("stepSize",1.0f);							
 	AiParameterFLT("stepJitter",1.0f);							
@@ -47,12 +70,12 @@ node_parameters
 	AiParameterBOOL("useBiasGainDot",false);					
 	AiParameterFLT("biasDot",0.5f);
 	AiParameterFLT("gainDot",0.5f);
-	AiParameterINT("radiusFalloffMode",0);
+	AiParameterENUM("radiusFalloffMode",RFM_NONE, ObqAtmosphereFalloffModeNames);
 	AiParameterFLT("falloffStart",0.8f);
 	AiParameterFLT("falloffExponent",1.0f);
 	AiParameterVEC("objectCenter",0.f,0.f,0.f);
-	AiParameterINT("compensateForCloudOpacity",ATMO_COMP_DROP);
-	AiParameterINT("divideColorByOpacity",ATMO_BEFORE);
+	AiParameterENUM("compensateForCloudOpacity",ATMO_COMP_DROP, ObqAtmoCompensateNames);
+	AiParameterENUM("divideColorByOpacity",ATMO_BEFORE,ObqAtmoDivideNames);
 	AiParameterBOOL("useMaximumRayLength",false);					
 	AiParameterFLT("maximumRayLength",10.0f);
 	AiParameterBOOL("secondaryTypesToo",false);
@@ -69,6 +92,10 @@ node_update
 	ShaderData *data = (ShaderData*)AiNodeGetLocalData(node);
 	data->falloffMode = AiNodeGetInt(node,"radiusFalloffMode");
 	data->secondaryTypesToo = AiNodeGetBool(node,"secondaryTypesToo");
+	data->compensateForCloudOpacity = AiNodeGetInt(node, "compensateForCloudOpacity");
+	data->divideColorByOpacity = AiNodeGetInt(node, "divideColorByOpacity");
+	data->use3dKd = AiNodeIsLinked(node,"colorKd");
+	data->use3dAbsorption = AiNodeIsLinked(node,"absorption");
 }
 
 node_finish
@@ -129,9 +156,9 @@ shader_evaluate
 			float falloffMax = 1.0f;
 			float falloffExponent = 1.0f;
 			AtMatrix transforms;
-			bool use3dabsorption = AiShaderEvalParamBool(p_use3dAbsorption);
-			bool use3dKd = AiShaderEvalParamBool(p_use3dKd);
-			if(use3dabsorption || use3dKd || data->falloffMode==RFM_MATRIX)
+			//bool use3dabsorption = AiShaderEvalParamBool(p_use3dAbsorption);
+			//bool use3dKd = AiShaderEvalParamBool(p_use3dKd);
+			if(data->use3dAbsorption || data->use3dKd || data->falloffMode==RFM_MATRIX)
 				AiNodeGetMatrix(sg->Op, "matrix", transforms);
 
 			switch(data->falloffMode)
@@ -217,7 +244,7 @@ shader_evaluate
 			AtPoint originProbe = sg->P + AI_EPSILON*sg->Rd;
 
 			// compensate for non-opaque object
-			int compensateForCloudOpacity = AiShaderEvalParamInt(p_compensateForCloudOpacity);
+			//int compensateForCloudOpacity = AiShaderEvalParamInt(p_compensateForCloudOpacity);
 
 
 
@@ -261,7 +288,8 @@ shader_evaluate
 					AtShaderGlobals  *sgMarch = new AtShaderGlobals(*sg);
 
 					// isotrope shading
-					sgMarch->Nf.x = 0.0f; sgMarch->Nf.y = 0.0f; sgMarch->Nf.z = 0.0f;
+					//sgMarch->Nf.x = 0.0f; sgMarch->Nf.y = 0.0f; sgMarch->Nf.z = 0.0f;
+					sgMarch->fhemi = false;
 					sgMarch->P = originTrace; // the current point is the first point
 
 					// thickness of each step
@@ -299,14 +327,14 @@ shader_evaluate
 						CLAMP(dz,AI_EPSILON,distance); // at least epsilon
 
 						// Calculate thickness of this step
-						if(use3dabsorption)
+						if(data->use3dAbsorption)
 						{ // in 3d ?
 							AiM4PointByMatrixMult(&sgMarch->Po,transforms,&sgMarch->P);
 							absorption = AiShaderEvalParamFuncFlt(sgMarch,node,p_absorption);
 						}
-						if(use3dKd)
+						if(data->use3dKd)
 						{
-							if(!use3dabsorption)
+							if(!data->use3dAbsorption)
 								AiM4PointByMatrixMult(&sgMarch->Po,transforms,&sgMarch->P);
 							kd = AiShaderEvalParamFuncRGB(sgMarch,node,p_colorKd);
 						}
@@ -336,7 +364,7 @@ shader_evaluate
 							sg->out.RGBA.b += adjustedAlpha*c.b;
 
 							// Check for compensation mode
-							if(compensateForCloudOpacity == ATMO_COMP_RAISE)
+							if(data->compensateForCloudOpacity == ATMO_COMP_RAISE)
 								sg->out_opacity += adjustedAlpha*AI_RGB_WHITE;	
 							else
 								sg->out_opacity = cumulativeOpacity*AI_RGB_WHITE;
@@ -392,9 +420,9 @@ shader_evaluate
 					else
 					{
 						// check for compensation
-						if(compensateForCloudOpacity == ATMO_COMP_DROP)
+						if(data->compensateForCloudOpacity == ATMO_COMP_DROP)
 							maxAccumulatedOpacity -= (1.0f-cumulativeOpacity)*sample.opacity.r;
-						else if(compensateForCloudOpacity == ATMO_COMP_RAISE)
+						else if(data->compensateForCloudOpacity == ATMO_COMP_RAISE)
 							cumulativeOpacity += (1.0f-cumulativeOpacity)*sample.opacity.r;
 
 						// check for cumulative max
@@ -424,9 +452,9 @@ shader_evaluate
 			////////////////////////
 
 			// remap rgb
-			int divideMode = AiShaderEvalParamInt(p_divideColorByOpacity) ;
+			//int divideMode = AiShaderEvalParamInt(p_divideColorByOpacity) ;
 
-			if(divideMode == ATMO_BEFORE)
+			if(data->divideColorByOpacity == ATMO_BEFORE)
 			{
 				
 				if(sg->out_opacity.r > AI_EPSILON)
@@ -472,7 +500,7 @@ shader_evaluate
 			///////////////
 			// DIVIDE AFTER
 			///////////////
-			if(divideMode == ATMO_AFTER)
+			if(data->divideColorByOpacity == ATMO_AFTER)
 			{
 				
 				if(sg->out_opacity.r > AI_EPSILON)

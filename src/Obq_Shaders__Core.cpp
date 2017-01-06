@@ -4,7 +4,7 @@ Obq_Shaders__Core.cpp :
 This is the main for Obq_Shaders.dll. It's a node loader.
 
 *------------------------------------------------------------------------
-Copyright (c) 2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -42,12 +42,26 @@ extern AtNodeMethods* ObqEtchingMethods;
 extern AtNodeMethods* ObqFresnelMethods;
 extern AtNodeMethods* ObqHairMethods;
 extern AtNodeMethods* ObqIESLightFilterMethod;
+extern AtNodeMethods* ObqKettleUVStereoLensMethods;
 extern AtNodeMethods* ObqLensDistortionMethods;
 extern AtNodeMethods* ObqLightSaturationFilterMethod;
 extern AtNodeMethods* ObqMeasuredMaterialMethods;
+extern AtNodeMethods* ObqMessageGetBoolMethods;
+extern AtNodeMethods* ObqMessageGetColorMethods;
 extern AtNodeMethods* ObqMessageGetFltMethods;
+extern AtNodeMethods* ObqMessageGetIntMethods;
+extern AtNodeMethods* ObqMessageGetVectorMethods;
+extern AtNodeMethods* ObqMessageSetBoolMethods;
+extern AtNodeMethods* ObqMessageSetColorMethods;
 extern AtNodeMethods* ObqMessageSetFltMethods;
+extern AtNodeMethods* ObqMessageSetIntMethods;
+extern AtNodeMethods* ObqMessageSetVectorMethods;
+extern AtNodeMethods* ObqMessageStoreBoolMethods;
+extern AtNodeMethods* ObqMessageStoreColorMethods;
 extern AtNodeMethods* ObqMessageStoreFltMethods;
+extern AtNodeMethods* ObqMessageStoreIntMethods;
+extern AtNodeMethods* ObqMessageStoreVectorMethods;
+extern AtNodeMethods* ObqNodeInfoMethods;
 extern AtNodeMethods* ObqOpacityMethods;
 extern AtNodeMethods* ObqRandomColorMethods;
 extern AtNodeMethods* ObqRandomIDMethods;
@@ -83,12 +97,26 @@ enum SHADERS
 	OBQ_FRESNEL,
 	OBQ_HAIR,
 	OBQ_IESLIGHTFILTER,
+	OBQ_KETTLEUVSTEREOLENS,
 	OBQ_LENSDISTORTION,
 	OBQ_LIGHTSATURATIONFILTER,
 	OBQ_MEASUREDMATERIAL,
+	OBQ_MESSAGEGETBOOL,
+	OBQ_MESSAGEGETCOLOR,
 	OBQ_MESSAGEGETFLT,
+	OBQ_MESSAGEGETINT,
+	OBQ_MESSAGEGETVECTOR,
+	OBQ_MESSAGESETBOOL,
+	OBQ_MESSAGESETCOLOR,
 	OBQ_MESSAGESETFLT,
+	OBQ_MESSAGESETINT,
+	OBQ_MESSAGESETVECTOR,
+	OBQ_MESSAGESTOREBOOL,
+	OBQ_MESSAGESTORECOLOR,
 	OBQ_MESSAGESTOREFLT,
+	OBQ_MESSAGESTOREINT,
+	OBQ_MESSAGESTOREVECTOR,
+	OBQ_NODEINFO,
 	OBQ_OPACITY,
 	OBQ_RANDOMCOLOR,
 	OBQ_RANDOMID,
@@ -186,6 +214,12 @@ node_loader
 		node->name         = "Obq_IESLightFilter";
 		node->node_type    = AI_NODE_SHADER;
 		break;
+	case OBQ_KETTLEUVSTEREOLENS:
+		node->methods      = ObqKettleUVStereoLensMethods;
+		node->output_type  = AI_TYPE_UNDEFINED;
+		node->name         = "Obq_KettleUVStereoLens";
+		node->node_type    = AI_NODE_CAMERA;
+		break;
 	case OBQ_LENSDISTORTION:
 		node->methods     = ObqLensDistortionMethods;
 		node->output_type = AI_TYPE_UNDEFINED;
@@ -204,10 +238,46 @@ node_loader
 		node->name         = "Obq_MeasuredMaterial";
 		node->node_type    = AI_NODE_SHADER;
 		break;
+	case OBQ_MESSAGEGETBOOL:
+		node->methods      = ObqMessageGetBoolMethods;
+		node->output_type  = AI_TYPE_BOOLEAN;
+		node->name         = "Obq_MessageGetBool";
+		node->node_type    = AI_NODE_SHADER;
+		break;
+	case OBQ_MESSAGEGETCOLOR:
+		node->methods      = ObqMessageGetColorMethods;
+		node->output_type  = AI_TYPE_RGBA;
+		node->name         = "Obq_MessageGetColor";
+		node->node_type    = AI_NODE_SHADER;
+		break;
 	case OBQ_MESSAGEGETFLT:
 		node->methods      = ObqMessageGetFltMethods;
 		node->output_type  = AI_TYPE_FLOAT;
 		node->name         = "Obq_MessageGetFlt";
+		node->node_type    = AI_NODE_SHADER;
+		break;
+	case OBQ_MESSAGEGETINT:
+		node->methods      = ObqMessageGetIntMethods;
+		node->output_type  = AI_TYPE_INT;
+		node->name         = "Obq_MessageGetInt";
+		node->node_type    = AI_NODE_SHADER;
+		break;
+	case OBQ_MESSAGEGETVECTOR:
+		node->methods      = ObqMessageGetVectorMethods;
+		node->output_type  = AI_TYPE_VECTOR;
+		node->name         = "Obq_MessageGetVector";
+		node->node_type    = AI_NODE_SHADER;
+		break;
+	case OBQ_MESSAGESETBOOL:
+		node->methods      = ObqMessageSetBoolMethods;
+		node->output_type  = AI_TYPE_RGBA;
+		node->name         = "Obq_MessageSetBool";
+		node->node_type    = AI_NODE_SHADER;
+		break;
+	case OBQ_MESSAGESETCOLOR:
+		node->methods      = ObqMessageSetColorMethods;
+		node->output_type  = AI_TYPE_RGBA;
+		node->name         = "Obq_MessageSetColor";
 		node->node_type    = AI_NODE_SHADER;
 		break;
 	case OBQ_MESSAGESETFLT:
@@ -216,10 +286,52 @@ node_loader
 		node->name         = "Obq_MessageSetFlt";
 		node->node_type    = AI_NODE_SHADER;
 		break;
+	case OBQ_MESSAGESETINT:
+		node->methods      = ObqMessageSetIntMethods;
+		node->output_type  = AI_TYPE_RGBA;
+		node->name         = "Obq_MessageSetInt";
+		node->node_type    = AI_NODE_SHADER;
+		break;
+	case OBQ_MESSAGESETVECTOR:
+		node->methods      = ObqMessageSetVectorMethods;
+		node->output_type  = AI_TYPE_RGBA;
+		node->name         = "Obq_MessageSetVector";
+		node->node_type    = AI_NODE_SHADER;
+		break;
+	case OBQ_MESSAGESTOREBOOL:
+		node->methods      = ObqMessageStoreBoolMethods;
+		node->output_type  = AI_TYPE_RGBA;
+		node->name         = "Obq_MessageStoreBool";
+		node->node_type    = AI_NODE_SHADER;
+		break;
+	case OBQ_MESSAGESTORECOLOR:
+		node->methods      = ObqMessageStoreColorMethods;
+		node->output_type  = AI_TYPE_RGBA;
+		node->name         = "Obq_MessageStoreColor";
+		node->node_type    = AI_NODE_SHADER;
+		break;
 	case OBQ_MESSAGESTOREFLT:
 		node->methods      = ObqMessageStoreFltMethods;
 		node->output_type  = AI_TYPE_RGBA;
 		node->name         = "Obq_MessageStoreFlt";
+		node->node_type    = AI_NODE_SHADER;
+		break;
+	case OBQ_MESSAGESTOREINT:
+		node->methods      = ObqMessageStoreIntMethods;
+		node->output_type  = AI_TYPE_RGBA;
+		node->name         = "Obq_MessageStoreInt";
+		node->node_type    = AI_NODE_SHADER;
+		break;
+	case OBQ_MESSAGESTOREVECTOR:
+		node->methods      = ObqMessageStoreVectorMethods;
+		node->output_type  = AI_TYPE_RGBA;
+		node->name         = "Obq_MessageStoreVector";
+		node->node_type    = AI_NODE_SHADER;
+		break;
+	case OBQ_NODEINFO:
+		node->methods      = ObqNodeInfoMethods;
+		node->output_type  = AI_TYPE_RGBA;
+		node->name         = "Obq_NodeInfo";
 		node->node_type    = AI_NODE_SHADER;
 		break;
 	case OBQ_OPACITY:

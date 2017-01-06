@@ -4,7 +4,7 @@ Obq_Environment.cpp :
 	Based on sib_environment and sphericalLightFilter by nozon.
 
 *------------------------------------------------------------------------
-Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (madesjardins@obliquefx.com)
+Copyright (c) 2012-2014 Marc-Antoine Desjardins, ObliqueFX (marcantoinedesjardins@gmail.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -30,33 +30,61 @@ Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.p
 
 #include "Obq_Environment.h"
 
+// ENUM MENU
+static const char* ObqEnvMapModeNames[] = 
+{
+	"Mirrored Ball",
+    "Angular Map",
+    "Latitude-Longitude",
+    "Vertical Cross",
+    NULL
+};
+
+static const char* ObqEnvOnSurfaceModeNames[] = 
+{
+	"View Direction",
+	"View Direction (Inverted)",
+	"Surface Normal Direction",
+	"Surface Normal Direction (no bump)",
+	"Surface Normal Direction (Inverted)",
+	"Surface Normal Direction (no bump, Inverted)",
+	"Surface Normal Direction (Front-Facing)",
+	"Surface Normal Direction (Back-Facing)",
+	"Reflection Direction",
+	"Reflection Direction (no bump)",
+	"Refraction Direction",
+	"Refraction Direction (no bump)",
+	"Custom Direction",
+	NULL
+};
+
 // node_parameters
 //
 node_parameters
 {
 
 	AiParameterRGBA("tex",0.0f,0.0f,0.0f,0.0f);
-	AiParameterBOOL ( "considerAlpha",false);
-	AiParameterINT ( "mapMode", 2 );
-	AiParameterINT ( "sampleLevel", 1 );
-	AiParameterFLT ( "coneAngle", 10.0f );
-	AiParameterFLT ( "cosLobeGloss", 0.0f );
-	AiParameterBOOL ( "useSampleCount",false);
-	AiParameterFLT ( "sampleCount",10.0f);
-	AiParameterFLT ( "sampleCountMultiplier",1.0f);
-	AiParameterINT ( "onSurfaceMode", 0 );
-	AiParameterFLT ( "ior"   , 1.0f );
-	AiParameterVEC ( "customDirection"   , 0.0f, 1.0f, 0.0f );
-	AiParameterFLT ( "intensityCam"   , 1.0f );
-	AiParameterFLT ( "intensityDifGI"   , 1.0f );
-	AiParameterFLT ( "intensityRfl"   , 1.0f );
-	AiParameterFLT ( "intensityGlossy", 1.0f);
-	AiParameterFLT ( "intensityRfr"   , 1.0f );
-	AiParameterBOOL ( "globalRotation", true);
-	AiParameterVEC ( "rotation"   , 0.0f, 0.0f, 0.0f );
-	AiParameterBOOL ( "flipU", false);
-	AiParameterBOOL ( "flipV", false);
-	AiParameterBOOL ( "opaque", true);
+	AiParameterBOOL( "considerAlpha",false);
+	AiParameterENUM( "mapMode", LATLONG, ObqEnvMapModeNames );
+	AiParameterINT( "sampleLevel", 1 );
+	AiParameterFLT( "coneAngle", 10.0f );
+	AiParameterFLT( "cosLobeGloss", 0.0f );
+	AiParameterBOOL( "useSampleCount",false);
+	AiParameterFLT( "sampleCount",10.0f);
+	AiParameterFLT( "sampleCountMultiplier",1.0f);
+	AiParameterENUM( "onSurfaceMode", D_RFL, ObqEnvOnSurfaceModeNames );
+	AiParameterFLT( "ior"   , 1.0f );
+	AiParameterVEC( "customDirection"   , 0.0f, 1.0f, 0.0f );
+	AiParameterFLT( "intensityCam"   , 1.0f );
+	AiParameterFLT( "intensityDifGI"   , 1.0f );
+	AiParameterFLT( "intensityRfl"   , 1.0f );
+	AiParameterFLT( "intensityGlossy", 1.0f);
+	AiParameterFLT( "intensityRfr"   , 1.0f );
+	AiParameterBOOL( "globalRotation", true);
+	AiParameterVEC( "rotation"   , 0.0f, 0.0f, 0.0f );
+	AiParameterBOOL( "flipU", false);
+	AiParameterBOOL( "flipV", false);
+	AiParameterBOOL( "opaque", true);
 }
 
 
