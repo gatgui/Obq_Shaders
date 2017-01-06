@@ -106,7 +106,7 @@ node_update
 	data->Rr = AiNodeGetInt(options,"GI_total_depth");
 	data->Rr_diff = AiNodeGetInt(options, "GI_diffuse_depth");
 
-	if(params[p_filename].STR != "")
+	if(strlen(params[p_filename].STR) > 0)
 		data->brdf = new ISBrdf(params[p_filename].STR, static_cast<AtUInt32>(std::max(params[p_resolution].INT,3)),params[p_useHalfs].BOOL, USELUMINANCE);
 	else
 		AiMsgError("No File to load, aborting render.");
