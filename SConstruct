@@ -56,4 +56,6 @@ env.Depends(targets["shaders"], env.Install("%s/maya" % out_prefix, "maya/docs")
 env.Depends(targets["shaders"], env.Install("%s/maya" % out_prefix, "maya/icons"))
 env.Depends(targets["shaders"], env.Install("%s/c4d" % out_prefix, "cinema4d/docs"))
 env.Depends(targets["shaders"], env.Install("%s/c4d" % out_prefix, "cinema4d/res"))
+env.Depends(targets["shaders"], env.Install("%s/xsi" % out_prefix, "softimage/compounds"))
+env.Depends(targets["shaders"], env.Install("%s/xsi" % out_prefix, "softimage/spdl"))
 
