@@ -49,13 +49,39 @@ prjs = [
 targets = excons.DeclareTargets(env, prjs)
 
 out_prefix = excons.OutputBaseDirectory()
-env.Depends(targets["shaders"], env.InstallAs("%s/arnold/%s.mtd" % (out_prefix, out_name), "maya/metadata/Obq_Shaders__Core__a4_2_13_3.mtd"))
-env.Depends(targets["shaders"], env.Install("%s/maya" % out_prefix, "maya/ae"))
-env.Depends(targets["shaders"], env.Install("%s/maya" % out_prefix, "maya/attrPresets"))
-env.Depends(targets["shaders"], env.Install("%s/maya" % out_prefix, "maya/docs"))
-env.Depends(targets["shaders"], env.Install("%s/maya" % out_prefix, "maya/icons"))
-env.Depends(targets["shaders"], env.Install("%s/c4d" % out_prefix, "cinema4d/docs"))
-env.Depends(targets["shaders"], env.Install("%s/c4d" % out_prefix, "cinema4d/res"))
-env.Depends(targets["shaders"], env.Install("%s/xsi" % out_prefix, "softimage/compounds"))
-env.Depends(targets["shaders"], env.Install("%s/xsi" % out_prefix, "softimage/spdl"))
 
+targets["mtd"] = env.InstallAs("%s/arnold/%s.mtd" % (out_prefix, out_name), "maya/metadata/Obq_Shaders__Core__a4_2_13_3.mtd")
+targets["maya_ae"] = env.Install("%s/maya" % out_prefix, "maya/ae")
+targets["maya_pr"] = env.Install("%s/maya" % out_prefix, "maya/attrPresets")
+targets["maya_do"] = env.Install("%s/maya" % out_prefix, "maya/docs")
+targets["maya_ic"] = env.Install("%s/maya" % out_prefix, "maya/icons")
+targets["c4d_do"] = env.Install("%s/c4d" % out_prefix, "cinema4d/docs")
+targets["c4d_re"] = env.Install("%s/c4d" % out_prefix, "cinema4d/res")
+targets["xsi_co"] = env.Install("%s/xsi" % out_prefix, "softimage/compounds")
+targets["xsi_sp"] = env.Install("%s/xsi" % out_prefix, "softimage/spdl")
+
+env.Depends(targets["shaders"], targets["mtd"])
+env.Depends(targets["shaders"], targets["maya_ae"])
+env.Depends(targets["shaders"], targets["maya_pr"])
+env.Depends(targets["shaders"], targets["maya_do"])
+env.Depends(targets["shaders"], targets["maya_ic"])
+env.Depends(targets["shaders"], targets["c4d_do"])
+env.Depends(targets["shaders"], targets["c4d_re"])
+env.Depends(targets["shaders"], targets["xsi_co"])
+env.Depends(targets["shaders"], targets["xsi_sp"])
+
+eco = excons.EcosystemDist(env, "Obq_Shaders.env",
+                           {out_name: "/arnold/%s" % excons.EcosystemPlatform(),
+                            "mtd":  "/arnold/%s" % excons.EcosystemPlatform(),
+                            "maya_ae": "/maya",
+                            "maya_pr": "/maya",
+                            "maya_do": "/maya",
+                            "maya_ic": "/maya",
+                            "c4d_do": "/c4d",
+                            "c4d_re": "/c4d",
+                            "xsi_co": "/xsi",
+                            "xsi_sp": "/xsi"},
+                           targets=targets,
+                           ecoenv={"requires": ["arnold%s+" % arnold.Version()]})
+
+Default(targets["shaders"])

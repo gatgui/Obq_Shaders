@@ -21,3 +21,5 @@ release
 debug
 excons.cache
 .sconsign.dblite
+Obq_Shaders.env.tmp
+eco
